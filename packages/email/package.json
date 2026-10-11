@@ -1,0 +1,27 @@
+{
+  "name": "@kindling/email",
+  "version": "0.1.0",
+  "description": "Transactional e-mail through SendGrid's v3 Mail Send, and its signed event webhook, with no runtime dependency.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@kindling/firebase",
+  "version": "0.1.0",
+  "description": "The server's seam to Firebase through firebase-admin: one app, and the tenant every other kindling package writes under.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "firebase-admin": ">=13"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "firebase-admin": "^14.5.0"
+  }
+}

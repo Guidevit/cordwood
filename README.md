@@ -1,0 +1,43 @@
+# kindling
+
+Every app built on Next.js and Firebase rewrites the same parts: sign-in, billing, e-mail. kindling keeps each of them as one npm package, so a new project installs it and writes only what is its own.
+
+Kindling is the small dry wood that gets a fire going.
+
+## Packages
+
+| Package | What it does | Runtime dependencies |
+|---|---|---|
+| [`@kindling/email`](packages/email) | Sends one e-mail through SendGrid's v3 Mail Send and reads its signed event webhook. | none |
+| [`@kindling/firebase`](packages/firebase) | Gives the server one firebase-admin app and the document each tenant's data lives under. | `firebase-admin` (peer) |
+
+Version 0.1.0 of both is built and tested here. Neither is on npm yet.
+
+Planned, in this order: `auth`, `billing` (Stripe), `analytics`, `referral`, `surveys`, `changelog`, `experiments`, `tour`.
+
+## What every package assumes
+
+A package knows nothing about the app that installs it. It has no product name, no business rule and no text a user reads. Two conventions hold across all of them.
+
+**The browser never opens Firestore.** Reads and writes go through the server with firebase-admin, and the client rules deny everything.
+
+**A tenant's data lives under `tenants/{tenantId}`.** The id comes from a verified session. A request's body or query never names it.
+
+A package also reads no environment variable. The app passes each key in, which keeps every secret's source in one place: your code.
+
+## Work on it
+
+You need Node 22 or later and pnpm 10.
+
+```bash
+pnpm install
+pnpm test        # 66 tests, about a second
+pnpm typecheck
+pnpm build
+```
+
+A change to a package ships with a changeset. Run `pnpm changeset`, pick the package and the bump, and commit the file it writes.
+
+## License
+
+MIT. Open an issue before a large pull request, so the package's boundary is agreed first.
