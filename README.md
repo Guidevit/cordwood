@@ -12,11 +12,12 @@ Cordwood is firewood cut to length and stacked, ready for the fire.
 | [`@cordwood/firebase`](packages/firebase) | Gives the server one firebase-admin app, the document each tenant's data lives under, and a command that merges the indexes your packages need. | `firebase-admin` (peer) |
 | [`@cordwood/auth`](packages/auth) | Session cookies, roles the app defines, and tenant members: admit, change a role, remove. | `@cordwood/firebase`, `firebase-admin` (peer) |
 | [`@cordwood/analytics`](packages/analytics) | A product-event log that holds ids only and counts a repeat once, with DAU, WAU, MAU and stickiness. | `firebase-admin` (peer) |
+| [`@cordwood/surveys`](packages/surveys) | In-app NPS, CSAT and CES: when each is due, answers stored without a name, and the three scores. | `@cordwood/firebase`, `firebase-admin` (peer) |
 | [`@cordwood/billing`](packages/billing) | Stripe subscriptions per tenant: Checkout, the customer portal, a verified webhook and the subscription mirrored in Firestore. | `@cordwood/firebase`, `firebase-admin` and `stripe` (peers) |
 
 Version 0.1.0 of each is built and tested here. None is on npm yet.
 
-Planned, in this order: `referral`, `surveys`, `changelog`, `experiments`, `tour`.
+Planned: `changelog`, `experiments`, `tour`.
 
 ## What every package assumes
 
@@ -35,8 +36,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 242 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 136 that need no emulator, in about a second
+pnpm test        # 280 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 159 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```

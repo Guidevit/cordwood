@@ -1,0 +1,46 @@
+{
+  "name": "@cordwood/surveys",
+  "version": "0.1.0",
+  "description": "In-app NPS, CSAT and CES: when each is due, answers stored without a name, and the three scores.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guidevit/cordwood.git",
+    "directory": "packages/surveys"
+  },
+  "homepage": "https://github.com/Guidevit/cordwood/tree/main/packages/surveys#readme",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "firestore.indexes.json"
+  ],
+  "cordwood": {
+    "firestoreIndexes": "./firestore.indexes.json"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cordwood/firebase": "workspace:^"
+  },
+  "peerDependencies": {
+    "firebase-admin": ">=13"
+  },
+  "devDependencies": {
+    "firebase-admin": "^14.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
