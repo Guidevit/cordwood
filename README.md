@@ -10,10 +10,11 @@ Cordwood is firewood cut to length and stacked, ready for the fire.
 |---|---|---|
 | [`@cordwood/email`](packages/email) | Sends one e-mail through SendGrid's v3 Mail Send and reads its signed event webhook. | none |
 | [`@cordwood/firebase`](packages/firebase) | Gives the server one firebase-admin app and the document each tenant's data lives under. | `firebase-admin` (peer) |
+| [`@cordwood/auth`](packages/auth) | Session cookies, roles the app defines, and tenant members: admit, change a role, remove. | `@cordwood/firebase`, `firebase-admin` (peer) |
 
-Version 0.1.0 of both is built and tested here. Neither is on npm yet.
+Version 0.1.0 of each is built and tested here. None is on npm yet.
 
-Planned, in this order: `auth`, `billing` (Stripe), `analytics`, `referral`, `surveys`, `changelog`, `experiments`, `tour`.
+Planned, in this order: `billing` (Stripe), `analytics`, `referral`, `surveys`, `changelog`, `experiments`, `tour`.
 
 ## What every package assumes
 
@@ -27,14 +28,17 @@ A package also reads no environment variable. The app passes each key in, which 
 
 ## Work on it
 
-You need Node 22 or later and pnpm 10.
+You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators run on Java.
 
 ```bash
 pnpm install
-pnpm test        # 66 tests, about a second
-pnpm typecheck
 pnpm build
+pnpm test        # 140 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 95 that need no emulator, in about a second
+pnpm typecheck
 ```
+
+Build before the first type-check: a package reads the types of the packages it depends on from their `dist`.
 
 A change to a package ships with a changeset. Run `pnpm changeset`, pick the package and the bump, and commit the file it writes.
 

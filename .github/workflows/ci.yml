@@ -15,7 +15,13 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+      # The Firebase emulators the tests run in need Java.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
       - run: pnpm install --frozen-lockfile
+      # Build first: a package reads the types of the ones it depends on from their dist.
+      - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm build

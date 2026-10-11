@@ -23,7 +23,12 @@ jobs:
           node-version: 22
           cache: pnpm
           registry-url: https://registry.npmjs.org
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
       - run: pnpm test
       # Opens a "Version Packages" pull request while changesets are pending,
       # and publishes to npm once that pull request is merged.
