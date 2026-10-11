@@ -12,7 +12,8 @@
     "test": "firebase emulators:exec --only auth,firestore --project demo-cordwood \"vitest run\"",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
-    "test:unit": "vitest run --exclude \"**/*.emulator.test.ts\""
+    "test:unit": "vitest run --exclude \"**/*.emulator.test.ts\"",
+    "test:stripe": "firebase emulators:exec --only auth,firestore --project demo-cordwood \"node --env-file=.env ./node_modules/vitest/vitest.mjs run packages/billing/src/billing.stripe.test.ts\""
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

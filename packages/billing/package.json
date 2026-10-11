@@ -1,0 +1,44 @@
+{
+  "name": "@cordwood/billing",
+  "version": "0.1.0",
+  "description": "Stripe subscriptions for a tenant: Checkout, the customer portal, a verified webhook and the subscription mirrored in Firestore.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guidevit/cordwood.git",
+    "directory": "packages/billing"
+  },
+  "homepage": "https://github.com/Guidevit/cordwood/tree/main/packages/billing#readme",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cordwood/firebase": "workspace:^"
+  },
+  "peerDependencies": {
+    "firebase-admin": ">=13",
+    "stripe": ">=23"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "firebase-admin": "^14.5.0",
+    "stripe": "^23.0.0"
+  }
+}

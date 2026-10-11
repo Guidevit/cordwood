@@ -34,6 +34,19 @@ importers:
         specifier: ^14.5.0
         version: 14.5.0
 
+  packages/billing:
+    dependencies:
+      '@cordwood/firebase':
+        specifier: workspace:^
+        version: link:../firebase
+    devDependencies:
+      firebase-admin:
+        specifier: ^14.5.0
+        version: 14.5.0
+      stripe:
+        specifier: ^23.0.0
+        version: 23.0.0(@types/node@22.20.5)
+
   packages/email: {}
 
   packages/firebase:
@@ -2775,6 +2788,15 @@ packages:
   strip-json-comments@2.0.1:
     resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
     engines: {node: '>=0.10.0'}
+
+  stripe@23.0.0:
+    resolution: {integrity: sha512-MDE2A5ZVVluYURORaZEVghSmnLJc3w6aHAlZSxDQMsOjOb3V0O6ro/CiaeFlJS4N7uIVmsg98ocRsPmUK6YfyA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@types/node': '>=20'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   strnum@2.5.1:
     resolution: {integrity: sha512-UM4nTLWzQiDBseVxUGxN0wJzIk0UU89Qi7pKXz9qISo+lhviJikTuikBsK/oFRlpvYHvSdz0TVoLyQ+sEpYwxA==}
@@ -6152,6 +6174,10 @@ snapshots:
       ansi-regex: 6.4.0
 
   strip-json-comments@2.0.1: {}
+
+  stripe@23.0.0(@types/node@22.20.5):
+    optionalDependencies:
+      '@types/node': 22.20.5
 
   strnum@2.5.1:
     dependencies:
