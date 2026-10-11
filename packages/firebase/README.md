@@ -1,9 +1,9 @@
-# @kindling/firebase
+# @cordwood/firebase
 
-The server's way into Firebase through firebase-admin, in 5 functions. Every other kindling package that stores data builds on it.
+The server's way into Firebase through firebase-admin, in 5 functions. Every other cordwood package that stores data builds on it.
 
 ```bash
-pnpm add @kindling/firebase firebase-admin
+pnpm add @cordwood/firebase firebase-admin
 ```
 
 Node 22 or later, `firebase-admin` 13 or later. Server only.
@@ -11,7 +11,7 @@ Node 22 or later, `firebase-admin` 13 or later. Server only.
 ## The app
 
 ```ts
-import { auth, firestore } from "@kindling/firebase";
+import { auth, firestore } from "@cordwood/firebase";
 
 const db = firestore();
 const users = auth();
@@ -24,7 +24,7 @@ const users = auth();
 Everything a tenant owns lives under `tenants/{tenantId}`.
 
 ```ts
-import { firestore, tenantRef } from "@kindling/firebase";
+import { firestore, tenantRef } from "@cordwood/firebase";
 
 const tenant = tenantRef(firestore(), session.tenantId);
 const invoices = tenant.collection("invoices");

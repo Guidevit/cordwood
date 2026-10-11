@@ -5,7 +5,7 @@ import { isDocumentId, tenantRef } from "./tenant.js";
 
 // A project id is all a reference needs: nothing here opens a connection.
 beforeAll(() => {
-  process.env.GCLOUD_PROJECT = "demo-kindling";
+  process.env.GCLOUD_PROJECT = "demo-cordwood";
 });
 
 describe("the admin app", () => {

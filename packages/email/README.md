@@ -1,9 +1,9 @@
-# @kindling/email
+# @cordwood/email
 
 One e-mail through SendGrid's v3 Mail Send, with a single `fetch` and no runtime dependency. It also verifies SendGrid's signed Event Webhook and returns the events an app acts on.
 
 ```bash
-pnpm add @kindling/email
+pnpm add @cordwood/email
 ```
 
 Node 22 or later. Server only: the API key must never reach a browser bundle.
@@ -11,7 +11,7 @@ Node 22 or later. Server only: the API key must never reach a browser bundle.
 ## Send
 
 ```ts
-import { createEmailSender } from "@kindling/email";
+import { createEmailSender } from "@cordwood/email";
 
 export const email = createEmailSender({
   apiKey: process.env.SENDGRID_API_KEY,
@@ -71,7 +71,7 @@ A subscribed message never falls back to `from`. Without `subscriptionFrom` it t
 SendGrid signs `timestamp + raw body`. Verify on the bytes as they arrived, before parsing.
 
 ```ts
-import { createEventReader } from "@kindling/email";
+import { createEventReader } from "@cordwood/email";
 
 const events = createEventReader({
   publicKey: process.env.SENDGRID_WEBHOOK_PUBLIC_KEY,

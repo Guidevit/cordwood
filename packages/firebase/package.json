@@ -1,8 +1,14 @@
 {
-  "name": "@kindling/firebase",
+  "name": "@cordwood/firebase",
   "version": "0.1.0",
-  "description": "The server's seam to Firebase through firebase-admin: one app, and the tenant every other kindling package writes under.",
+  "description": "The server's seam to Firebase through firebase-admin: one app, and the tenant every other cordwood package writes under.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guidevit/cordwood.git",
+    "directory": "packages/firebase"
+  },
+  "homepage": "https://github.com/Guidevit/cordwood/tree/main/packages/firebase#readme",
   "type": "module",
   "sideEffects": false,
   "engines": {

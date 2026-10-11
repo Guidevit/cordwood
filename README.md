@@ -1,15 +1,15 @@
-# kindling
+# cordwood
 
-Every app built on Next.js and Firebase rewrites the same parts: sign-in, billing, e-mail. kindling keeps each of them as one npm package, so a new project installs it and writes only what is its own.
+Every app built on Next.js and Firebase rewrites the same parts: sign-in, billing, e-mail. cordwood keeps each of them as one npm package, so a new project installs it and writes only what is its own.
 
-Kindling is the small dry wood that gets a fire going.
+Cordwood is firewood cut to length and stacked, ready for the fire.
 
 ## Packages
 
 | Package | What it does | Runtime dependencies |
 |---|---|---|
-| [`@kindling/email`](packages/email) | Sends one e-mail through SendGrid's v3 Mail Send and reads its signed event webhook. | none |
-| [`@kindling/firebase`](packages/firebase) | Gives the server one firebase-admin app and the document each tenant's data lives under. | `firebase-admin` (peer) |
+| [`@cordwood/email`](packages/email) | Sends one e-mail through SendGrid's v3 Mail Send and reads its signed event webhook. | none |
+| [`@cordwood/firebase`](packages/firebase) | Gives the server one firebase-admin app and the document each tenant's data lives under. | `firebase-admin` (peer) |
 
 Version 0.1.0 of both is built and tested here. Neither is on npm yet.
 
