@@ -9,13 +9,14 @@ Cordwood is firewood cut to length and stacked, ready for the fire.
 | Package | What it does | Runtime dependencies |
 |---|---|---|
 | [`@cordwood/email`](packages/email) | Sends one e-mail through SendGrid's v3 Mail Send and reads its signed event webhook. | none |
-| [`@cordwood/firebase`](packages/firebase) | Gives the server one firebase-admin app and the document each tenant's data lives under. | `firebase-admin` (peer) |
+| [`@cordwood/firebase`](packages/firebase) | Gives the server one firebase-admin app, the document each tenant's data lives under, and a command that merges the indexes your packages need. | `firebase-admin` (peer) |
 | [`@cordwood/auth`](packages/auth) | Session cookies, roles the app defines, and tenant members: admit, change a role, remove. | `@cordwood/firebase`, `firebase-admin` (peer) |
+| [`@cordwood/analytics`](packages/analytics) | A product-event log that holds ids only and counts a repeat once, with DAU, WAU, MAU and stickiness. | `firebase-admin` (peer) |
 | [`@cordwood/billing`](packages/billing) | Stripe subscriptions per tenant: Checkout, the customer portal, a verified webhook and the subscription mirrored in Firestore. | `@cordwood/firebase`, `firebase-admin` and `stripe` (peers) |
 
 Version 0.1.0 of each is built and tested here. None is on npm yet.
 
-Planned, in this order: `analytics`, `referral`, `surveys`, `changelog`, `experiments`, `tour`.
+Planned, in this order: `referral`, `surveys`, `changelog`, `experiments`, `tour`.
 
 ## What every package assumes
 
@@ -34,8 +35,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 186 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 95 that need no emulator, in about a second
+pnpm test        # 242 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 136 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```

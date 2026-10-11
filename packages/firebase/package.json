@@ -20,6 +20,9 @@
       "default": "./dist/index.js"
     }
   },
+  "bin": {
+    "cordwood-firebase": "./dist/cli.js"
+  },
   "files": [
     "dist"
   ],

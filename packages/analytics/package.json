@@ -1,0 +1,43 @@
+{
+  "name": "@cordwood/analytics",
+  "version": "0.1.0",
+  "description": "A product-event log in Firestore that holds ids only, counts a repeat once, and never fails the act it records. With DAU, WAU, MAU and stickiness computed from it.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guidevit/cordwood.git",
+    "directory": "packages/analytics"
+  },
+  "homepage": "https://github.com/Guidevit/cordwood/tree/main/packages/analytics#readme",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "firestore.indexes.json"
+  ],
+  "cordwood": {
+    "firestoreIndexes": "./firestore.indexes.json"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "firebase-admin": ">=13"
+  },
+  "devDependencies": {
+    "firebase-admin": "^14.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,6 +1,6 @@
 # @cordwood/firebase
 
-The server's way into Firebase through firebase-admin, in 5 functions. Every other cordwood package that stores data builds on it.
+The server's way into Firebase through firebase-admin: one app, the document each tenant's data lives under, and a command that collects the Firestore indexes your packages need.
 
 ```bash
 pnpm add @cordwood/firebase firebase-admin
@@ -47,4 +47,23 @@ service cloud.firestore {
     }
   }
 }
+```
+
+## Indexes
+
+Firestore keeps every index of a project in one file, `firestore.indexes.json`. A cordwood package that queries ships the indexes it needs, and this command merges them into your file:
+
+```bash
+pnpm exec cordwood-firebase indexes
+firebase deploy --only firestore:indexes
+```
+
+It reads the packages in your `dependencies` and `devDependencies`. Your own indexes stay first and untouched, and running it twice changes nothing.
+
+Add `--check` in CI. It writes nothing and exits 1 when the file is out of date, so an index a new package needs cannot be forgotten before a deploy.
+
+A package opts in with one field in its `package.json`:
+
+```json
+{ "cordwood": { "firestoreIndexes": "./firestore.indexes.json" } }
 ```
