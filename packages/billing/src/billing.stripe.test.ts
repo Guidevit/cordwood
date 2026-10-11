@@ -1,6 +1,7 @@
 // Runs against a real Stripe sandbox and the Firestore emulator: `pnpm test:stripe`, with a test-mode
 // key in `.env` as STRIPE_SECRET_KEY. Skipped everywhere else. It creates a product, a price, a
-// customer and a trialing subscription, and deletes the customer when it ends.
+// customer and a trialing subscription set to end with its trial, and tries to delete the customer
+// when it ends. With a key that needs approval to delete, the customer stays in the sandbox.
 import { randomUUID } from "node:crypto";
 import { firestore as adminFirestore, tenantRef } from "@cordwood/firebase";
 import Stripe from "stripe";
@@ -135,14 +136,17 @@ describe.skipIf(!usable)("against a Stripe sandbox", () => {
     expect(url).toMatch(/^https:\/\/billing\.stripe\.com\//);
   });
 
-  it("mirrors the cancellation", async () => {
-    await stripe.subscriptions.cancel(subscriptionId);
-    expect(await deliver("customer.subscription.deleted", { id: subscriptionId })).toEqual({
+  // A cancellation set for the period's end, not an immediate one: a key made for an agent needs a
+  // person's approval on Stripe to cancel at once or to delete, and this suite runs unattended.
+  it("mirrors a cancellation set for the end of the period", async () => {
+    await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true });
+    expect(await deliver("customer.subscription.updated", { id: subscriptionId })).toEqual({
       status: 200,
       result: "written",
     });
-    expect(await billing.subscription(tenantId)).toMatchObject({ status: "canceled" });
-    expect(await billing.portal({ tenantId, returnPath: "/billing" })).toBeNull();
+    const mirror = await billing.subscription(tenantId);
+    expect(mirror).toMatchObject({ status: "trialing", cancelAtPeriodEnd: true });
+    expect(mirror!.cancelAt).toBeInstanceOf(Date);
   });
 
   it("logged nothing along the way", () => {
