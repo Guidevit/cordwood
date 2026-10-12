@@ -25,7 +25,7 @@ Tell the user the whole list once, before doing anything, so nothing arrives as 
 |---|---|---|
 | A private GitHub repository with the code pushed | You (`new-app` step 7) | Free |
 | A real Firebase project on the Blaze plan | You create it, the user links billing | Pay as you go. Blaze is required by App Hosting and by Cloud Storage |
-| A host for the Next.js server | You | See step 4 |
+| Firebase App Hosting for the Next.js server | You | Inside Blaze |
 | A domain, and access to its DNS | The user | Yearly |
 | A Stripe account, verified | The user | A fee per payment |
 | A SendGrid account with the domain authenticated | The user | No free plan: a 60-day trial, then paid |
@@ -76,17 +76,13 @@ Check each command's `--help` before running it: the CLI changes.
 
 ## 4. The host
 
-The default is **Firebase App Hosting**: it sits in the same project, so firebase-admin starts with no key file, and its secrets live in Cloud Secret Manager.
+The host is **Firebase App Hosting**. Cordwood is Firebase end to end: the server sits in the same project as its data, so firebase-admin starts with no key file, and its secrets live in Cloud Secret Manager. Do not propose another host.
 
-Say these three things before choosing it. They were true when this was written, so check the App Hosting pages for today's answer:
+Work within what it offers, and check its pages for today's answer:
 
-- Its regions are in the United States, Europe and Asia. There is none in South America.
-- It officially supports the Next.js versions on its list, and a newer major runs as a preview. Compare the app's `next` version with that list.
+- Its regions are in the United States, Europe and Asia. Pick the one nearest the users, and say which.
+- It lists the Next.js versions it supports, and a newer major runs as a preview. When the app's `next` is newer than the list, deploy and walk it: step 10 is what proves it.
 - It needs the Blaze plan.
-
-If one of them rules it out for this app, another host that runs a Next.js server on Node 22 works. There the server has no ambient Google credential, so firebase-admin needs a service account, held as a secret of that host. That is the user's key to create and paste.
-
-With App Hosting:
 
 ```bash
 firebase init apphosting --project <project-id>     # backend id, region, root directory
@@ -137,7 +133,7 @@ firebase deploy --only apphosting --project <project-id>
 
 ## 6. The domain
 
-On App Hosting the user adds it in the console: the backend's Settings, then Add custom domain. The wizard shows the DNS records to create at the registrar. DNS and the certificate can each take up to a day.
+The user adds it in the console: the backend's Settings, then Add custom domain. The wizard shows the DNS records to create at the registrar. DNS and the certificate can each take up to a day.
 
 When the address is final: set `APP_ORIGIN` to it and deploy again, add it to Firebase Auth's authorised domains, and use it in every webhook below. A camera or a microphone works in the browser on `https` only, which a real address gives.
 
