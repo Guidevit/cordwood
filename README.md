@@ -59,7 +59,7 @@ Claude builds the base, runs it on the Firebase emulators, walks sign-up and inv
 
 ## Claude Code skill
 
-The repository is also a Claude Code plugin with four skills. Install it once:
+The repository is also a Claude Code plugin with five skills. Install it once:
 
 ```
 /plugin install cordwood --marketplace Guidevit/cordwood
@@ -83,6 +83,8 @@ The new project also gets a small rule harness in `.claude/`: hooks that hold fu
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 
+**`go-live`** takes an app from the emulators to the internet, on a request such as "put it in production" or "what is missing to launch". It creates the real Firebase project, deploys the rules and the app, and names every secret, asking before each command that changes a cloud account. The parts that are yours, such as turning on billing, verifying the Stripe account and adding DNS records, it opens and points at. It ends with a walk on the live address.
+
 **`improve`** runs when Claude meets a bug in a package, something missing that any app would need, or a wrong instruction in a skill. It fixes the cause in this repository with a test and opens a pull request, from a branch here with write access and from a fork without it. It never pushes to `main` and never merges: you read the change, and merging the release is what puts it on npm.
 
 To use the skills without the plugin, copy the folders in [`plugin/skills`](plugin/skills) into your project's `.claude/skills/`.
@@ -104,8 +106,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 602 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 404 that need no emulator, in about a second
+pnpm test        # 604 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 406 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```

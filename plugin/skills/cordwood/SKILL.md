@@ -67,6 +67,10 @@ Tell the user when the request lands on one of these. None of them is a setting 
 - Every sentence a user reads. E-mail bodies, survey questions and component labels are written in the app, in its language.
 - Where a survey prompt or a tour appears on screen.
 
+## When the app is ready for real users
+
+A real Firebase project, a host, secrets, Stripe, the e-mail domain and the scheduled job: use the `go-live` skill. It has the order that works and says which steps are the user's own clicks.
+
 ## When cordwood itself is the problem
 
 A package bug, a missing capability any app would need, a README that sent you to a wrong call, or a step this skill got wrong: use the `improve` skill. It fixes the cause in the cordwood repository and opens a pull request with it. Do not leave a silent workaround in the app.

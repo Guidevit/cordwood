@@ -122,6 +122,7 @@ Tell the user, briefly:
 - The slots still open, each with what fact fills it.
 - What must be true before `LANDING=on`: every slot filled, a privacy policy and terms of use the footer can link to, and the offer enforced by the code.
 - What the page counts, and where to read it.
+- That `LANDING` and `LANDING_INDEXABLE` are set on the real host with the app's other configuration, which the `go-live` skill covers.
 
 Do not write a privacy policy or terms of use from imagination. If the app has none, say so. When the user asks for a draft, write one that describes what the code really collects, and mark it as a draft for a lawyer.
 
