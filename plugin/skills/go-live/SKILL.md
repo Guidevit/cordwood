@@ -118,8 +118,10 @@ env:
 For each secret, give the user the command and let them run it and paste the value:
 
 ```bash
-firebase apphosting:secrets:set app-secret --project <project-id>
+firebase apphosting:secrets:set stripe-secret-key --project <project-id>
 ```
+
+The command asks for the value at a prompt, so it needs a terminal of the user's own, opened in the project's folder. Run from inside the Claude Code session it has no prompt to ask at, and fails with "Secret Payload cannot be empty" after creating the secret with no value. Running it again in a real terminal fills it.
 
 | Variable | Kind | Its value |
 |---|---|---|
