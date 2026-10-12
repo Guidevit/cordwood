@@ -18,7 +18,7 @@ Cordwood is firewood cut to length and stacked, ready for the fire.
 | [`@cordwood/tour`](packages/tour) | Guided tours: which each person has seen, and a headless controller that opens and walks the steps. | `@cordwood/firebase`, `firebase-admin` (peer), `react` (optional peer) |
 | [`@cordwood/billing`](packages/billing) | Stripe subscriptions per tenant: Checkout, the customer portal, a verified webhook and the subscription mirrored in Firestore. | `@cordwood/firebase`, `firebase-admin` and `stripe` (peers) |
 
-Version 0.1.0 of each is built and tested here. None is on npm yet.
+Version 0.1.0 of each is on npm, under the `@cordwood` scope.
 
 ## What every package assumes
 
