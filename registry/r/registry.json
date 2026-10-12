@@ -1,0 +1,112 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "cordwood",
+  "homepage": "https://github.com/Guidevit/cordwood",
+  "items": [
+    {
+      "name": "tour-card",
+      "type": "registry:component",
+      "title": "Tour card",
+      "description": "The card of a guided tour from @cordwood/tour: it points at the current step's element, rings it and carries the buttons.",
+      "dependencies": [
+        "@cordwood/tour"
+      ],
+      "registryDependencies": [
+        "button",
+        "popover"
+      ],
+      "files": [
+        {
+          "path": "cordwood/tour-card.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "survey-prompt",
+      "type": "registry:component",
+      "title": "Survey prompt",
+      "description": "One NPS, CSAT or CES question for @cordwood/surveys, with its scale, an optional comment and a way to dismiss it.",
+      "registryDependencies": [
+        "button",
+        "label",
+        "textarea"
+      ],
+      "files": [
+        {
+          "path": "cordwood/survey-prompt.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "changelog-dialog",
+      "type": "registry:component",
+      "title": "Changelog dialog",
+      "description": "The release notes of @cordwood/changelog behind a button with an unread dot, and the switch for receiving them by e-mail.",
+      "registryDependencies": [
+        "button",
+        "dialog",
+        "label",
+        "switch"
+      ],
+      "files": [
+        {
+          "path": "cordwood/changelog-dialog.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "unsubscribe-card",
+      "type": "registry:component",
+      "title": "Unsubscribe card",
+      "description": "The page an unsubscribe link opens: it reads the code after # and posts it once the person confirms.",
+      "registryDependencies": [
+        "button",
+        "card"
+      ],
+      "files": [
+        {
+          "path": "cordwood/unsubscribe-card.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "subscription-card",
+      "type": "registry:component",
+      "title": "Subscription card",
+      "description": "A tenant's subscription from @cordwood/billing: its status, its next date, and the way to Checkout or the customer portal.",
+      "registryDependencies": [
+        "badge",
+        "button",
+        "card"
+      ],
+      "files": [
+        {
+          "path": "cordwood/subscription-card.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "members-table",
+      "type": "registry:component",
+      "title": "Members table",
+      "description": "A tenant's members from @cordwood/auth, with the role of each and the way to change it or remove them.",
+      "registryDependencies": [
+        "alert-dialog",
+        "button",
+        "select",
+        "table"
+      ],
+      "files": [
+        {
+          "path": "cordwood/members-table.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

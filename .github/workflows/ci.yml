@@ -23,5 +23,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Build first: a package reads the types of the ones it depends on from their dist.
       - run: pnpm build
+      # The build rewrites the component registry: what is committed must be what the source gives.
+      - run: git diff --exit-code registry/r
       - run: pnpm typecheck
       - run: pnpm test

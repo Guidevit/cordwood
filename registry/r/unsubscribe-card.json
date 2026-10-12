@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "unsubscribe-card",
+  "title": "Unsubscribe card",
+  "description": "The page an unsubscribe link opens: it reads the code after # and posts it once the person confirms.",
+  "registryDependencies": [
+    "button",
+    "card"
+  ],
+  "files": [
+    {
+      "path": "cordwood/unsubscribe-card.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\n\nimport { Button } from \"@/components/ui/button\"\nimport {\n  Card,\n  CardContent,\n  CardDescription,\n  CardFooter,\n  CardHeader,\n  CardTitle,\n} from \"@/components/ui/card\"\n\nexport type UnsubscribeCardLabels = {\n  title: string\n  /** What confirming does, such as \"You will stop receiving our release notes by e-mail.\" */\n  text: string\n  confirm: string\n  /** Shown after the request was sent. The same whether or not the link named anyone. */\n  done: string\n  /** Shown when the request could not be sent. */\n  failed: string\n  /** Shown when the link carries no code. */\n  missing: string\n}\n\ntype State = \"loading\" | \"missing\" | \"ready\" | \"sending\" | \"done\" | \"failed\"\n\n/**\n * The page a message's unsubscribe link opens. It reads the code after `#` in the address and posts it\n * as `{ token }` to `endpoint`, the route that calls `unsubscribe`. The person confirms with a click,\n * so a mail scanner that only opens the link changes nothing.\n */\nfunction UnsubscribeCard({\n  endpoint,\n  labels,\n  className,\n}: {\n  endpoint: string\n  labels: UnsubscribeCardLabels\n  className?: string\n}) {\n  const [state, setState] = React.useState<State>(\"loading\")\n  const token = React.useRef<string | null>(null)\n\n  // The address is only known in the browser.\n  React.useEffect(() => {\n    token.current = new URLSearchParams(window.location.hash.slice(1)).get(\"token\")\n    setState(token.current ? \"ready\" : \"missing\")\n  }, [])\n\n  async function confirm() {\n    setState(\"sending\")\n    try {\n      const response = await fetch(endpoint, {\n        method: \"POST\",\n        headers: { \"content-type\": \"application/json\" },\n        body: JSON.stringify({ token: token.current }),\n      })\n      setState(response.ok ? \"done\" : \"failed\")\n    } catch {\n      setState(\"failed\")\n    }\n  }\n\n  const message =\n    state === \"done\" ? labels.done : state === \"missing\" ? labels.missing : labels.text\n\n  return (\n    <Card data-slot=\"unsubscribe-card\" className={className}>\n      <CardHeader>\n        <CardTitle className=\"text-balance\">{labels.title}</CardTitle>\n        {state === \"loading\" ? null : (\n          <CardDescription role=\"status\" className=\"text-pretty\">\n            {message}\n          </CardDescription>\n        )}\n      </CardHeader>\n      {state === \"failed\" ? (\n        <CardContent>\n          <p role=\"alert\" className=\"text-sm text-destructive\">\n            {labels.failed}\n          </p>\n        </CardContent>\n      ) : null}\n      {state === \"ready\" || state === \"sending\" || state === \"failed\" ? (\n        <CardFooter>\n          <Button onClick={confirm} disabled={state === \"sending\"} aria-busy={state === \"sending\"}>\n            {labels.confirm}\n          </Button>\n        </CardFooter>\n      ) : null}\n    </Card>\n  )\n}\n\nexport { UnsubscribeCard }\n",
+      "type": "registry:component"
+    }
+  ],
+  "type": "registry:component"
+}

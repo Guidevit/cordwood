@@ -18,7 +18,17 @@ Cordwood is firewood cut to length and stacked, ready for the fire.
 | [`@cordwood/tour`](packages/tour) | Guided tours: which each person has seen, and a headless controller that opens and walks the steps. | `@cordwood/firebase`, `firebase-admin` (peer), `react` (optional peer) |
 | [`@cordwood/billing`](packages/billing) | Stripe subscriptions per tenant: Checkout, the customer portal, a verified webhook and the subscription mirrored in Firestore. | `@cordwood/firebase`, `firebase-admin` and `stripe` (peers) |
 
-Version 0.1.0 of each is on npm, under the `@cordwood` scope.
+Each is on npm, under the `@cordwood` scope.
+
+## Components
+
+The packages draw nothing. For the screens they leave to you, [`registry/`](registry) holds six React components that install the shadcn/ui way, as source copied into your app: the tour's card, the survey question, the release notes dialog, the unsubscribe page, the subscription card and the members table.
+
+```bash
+npx shadcn add @cordwood/tour-card
+```
+
+They use your app's own `Button`, `Dialog` and colours, and every word they show comes in through a `labels` prop. [Set the registry up](registry/README.md#install) once per app.
 
 ## What every package assumes
 
@@ -37,8 +47,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 451 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 267 that need no emulator, in about a second
+pnpm test        # 488 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 304 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```

@@ -6,11 +6,14 @@ export default defineConfig({
   resolve: {
     alias: {
       "@cordwood/firebase": path.resolve(import.meta.dirname, "packages/firebase/src/index.ts"),
+      "@cordwood/tour/react": path.resolve(import.meta.dirname, "packages/tour/src/react.ts"),
+      // The registry's components import the app's own primitives by this alias.
+      "@": path.resolve(import.meta.dirname, "registry"),
     },
   },
   test: {
     environment: "node",
-    include: ["packages/*/src/**/*.test.ts"],
+    include: ["packages/*/src/**/*.test.ts", "registry/cordwood/**/*.test.tsx"],
     // The emulator suites create accounts and wait on Auth: slower than a unit test, never this slow.
     testTimeout: 30_000,
   },
