@@ -15,11 +15,10 @@ Cordwood is firewood cut to length and stacked, ready for the fire.
 | [`@cordwood/surveys`](packages/surveys) | In-app NPS, CSAT and CES: when each is due, answers stored without a name, and the three scores. | `@cordwood/firebase`, `firebase-admin` (peer) |
 | [`@cordwood/changelog`](packages/changelog) | Release notes: who has read the newest one, who asked for them by e-mail, and one message per person per release. | `@cordwood/firebase`, `firebase-admin` (peer) |
 | [`@cordwood/experiments`](packages/experiments) | A/B tests: a stable arm per visitor, exposures and conversions counted once, and each arm compared with the control. | `firebase-admin` (peer) |
+| [`@cordwood/tour`](packages/tour) | Guided tours: which each person has seen, and a headless controller that opens and walks the steps. | `@cordwood/firebase`, `firebase-admin` (peer), `react` (optional peer) |
 | [`@cordwood/billing`](packages/billing) | Stripe subscriptions per tenant: Checkout, the customer portal, a verified webhook and the subscription mirrored in Firestore. | `@cordwood/firebase`, `firebase-admin` and `stripe` (peers) |
 
 Version 0.1.0 of each is built and tested here. None is on npm yet.
-
-Planned: `tour`.
 
 ## What every package assumes
 
@@ -38,8 +37,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 403 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 236 that need no emulator, in about a second
+pnpm test        # 451 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 267 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```
