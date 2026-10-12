@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/surveys",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "In-app NPS, CSAT and CES: when each is due, answers stored without a name, and the three scores.",
   "license": "MIT",
   "repository": {
