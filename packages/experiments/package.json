@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/experiments",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A/B tests: a stable arm per visitor, exposures and conversions counted once, and the comparison with its checks.",
   "license": "MIT",
   "repository": {
