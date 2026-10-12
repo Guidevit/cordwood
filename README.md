@@ -71,7 +71,9 @@ The repository is also a Claude Code plugin with three skills. Install it once:
 /cordwood:new-app
 ```
 
-Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. It makes the first commit and, when the folder has no GitHub repository, creates a private one and pushes to it. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
+Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. It makes the first commit and, when the folder has no GitHub repository, creates a private one and pushes to it.
+
+The new project also gets a small rule harness in `.claude/`: hooks that hold functions to 100 lines and a complexity of 15, ask for a test beside every server module, refuse a commit that carries a secret, and make Claude ask before a command that deletes work or reaches a real Firebase project. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 
@@ -96,8 +98,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 523 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 339 that need no emulator, in about a second
+pnpm test        # 585 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 401 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```
