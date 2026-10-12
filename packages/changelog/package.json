@@ -1,0 +1,46 @@
+{
+  "name": "@cordwood/changelog",
+  "version": "0.1.0",
+  "description": "Release notes inside the app with an unread marker, and by e-mail for whoever asked: once per person per version, with a one-click way out.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guidevit/cordwood.git",
+    "directory": "packages/changelog"
+  },
+  "homepage": "https://github.com/Guidevit/cordwood/tree/main/packages/changelog#readme",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "firestore.indexes.json"
+  ],
+  "cordwood": {
+    "firestoreIndexes": "./firestore.indexes.json"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cordwood/firebase": "workspace:^"
+  },
+  "peerDependencies": {
+    "firebase-admin": ">=13"
+  },
+  "devDependencies": {
+    "firebase-admin": "^14.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
