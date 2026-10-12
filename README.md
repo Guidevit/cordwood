@@ -55,7 +55,7 @@ confirm the stack or the pages. Name the app after this folder. Leave the app
 running, tell me the address, and then ask me what I want to build.
 ```
 
-Claude builds the base, runs it on the Firebase emulators, walks sign-up and invites in the browser, and then asks what you want to build. The screens come in the language you write to Claude in, so add a line to the prompt in your own language if that is not English. You need Node 22, pnpm and Java 21 on the machine. No cloud account or key is needed to start.
+Claude builds the base, runs it on the Firebase emulators, walks sign-up and invites in the browser, pushes the code to a new private GitHub repository, and then asks what you want to build. The screens come in the language you write to Claude in, so add a line to the prompt in your own language if that is not English. You need Node 22, pnpm and Java 21 on the machine. No cloud account or key is needed to start.
 
 ## Claude Code skill
 
@@ -71,7 +71,9 @@ The repository is also a Claude Code plugin with three skills. Install it once:
 /cordwood:new-app
 ```
 
-Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
+Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. It makes the first commit and, when the folder has no GitHub repository, creates a private one and pushes to it.
+
+The new project also gets a small rule harness in `.claude/`: hooks that hold functions to 100 lines and a complexity of 15, ask for a test beside every server module, refuse a commit that carries a secret, and make Claude ask before a command that deletes work or reaches a real Firebase project. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 
@@ -96,13 +98,27 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 522 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 338 that need no emulator, in about a second
+pnpm test        # 585 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 401 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```
 
 `pnpm test:stripe` needs a file named `.env` at the root with `STRIPE_SECRET_KEY` set to a test-mode key of a sandbox you can fill with test objects. Git ignores that file. The suite refuses a live key.
+
+### Sending a change
+
+`main` takes no direct push. Open a pull request, and merge it once the `check` job passes:
+
+```bash
+git switch -c fix/short-name
+git push -u origin HEAD
+gh pr create
+gh pr checks --watch
+gh pr merge --squash --delete-branch
+```
+
+A change to a package also needs a changeset (`pnpm changeset`). After the merge, the release workflow opens a "Version Packages" pull request, and merging that one publishes to npm.
 
 Build before the first type-check: a package reads the types of the packages it depends on from their `dist`.
 

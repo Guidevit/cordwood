@@ -156,6 +156,7 @@ Routes: `GET /api/tours` and `POST /api/tours`. The shell's layout reads `tours.
 
 ## Conventions for everything you write
 
+- **The harness's rules hold from the first file.** Every file under `src/server`, `src/lib` and `src/app` opens with a `// Reason to change:` comment. Every `.ts` file under `src/server` and `src/lib` has a `name.test.ts` beside it, written first. A module that only builds a client from configuration (`auth.ts`, `billing.ts`, `firebase-client.ts`) takes `// @tdd-exempt: <reason>`. `links.ts`, `session.ts` and `sendOrShow` hold logic and get real tests.
 - **Route handlers answer JSON** with an `error` field holding a reason word, never a sentence. Pages turn reasons into sentences.
 - **Forms** are client components that post to a route and show the route's reason. Disable the submit button while a request is out, and say why a field is wrong next to that field.
 - **Dates** cross a JSON route as strings. Turn them back into `Date` before a component that formats them.

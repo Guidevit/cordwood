@@ -48,8 +48,22 @@ Add the cordwood registry to `components.json` (see the `cordwood` skill's `refe
 ```bash
 npx shadcn@latest add input label card @cordwood/tour-card @cordwood/survey-prompt @cordwood/changelog-dialog @cordwood/unsubscribe-card @cordwood/subscription-card @cordwood/members-table
 pnpm add @cordwood/firebase @cordwood/auth @cordwood/email @cordwood/billing @cordwood/analytics @cordwood/surveys @cordwood/changelog @cordwood/experiments @cordwood/tour firebase firebase-admin stripe
-pnpm add -D firebase-tools
+pnpm add -D firebase-tools vitest
 ```
+
+**Install the rule harness** before writing any code of your own. It is the `harness/` folder beside this file.
+
+| From `harness/` | To the project |
+|---|---|
+| `hooks/` | `.claude/hooks/` |
+| `rules.json` | `.claude/rules.json` |
+| `settings.json` | `.claude/settings.json` (merge the `permissions` and `hooks` keys when the file exists) |
+| `eslint.limits.mjs` | `eslint.limits.mjs`, at the root |
+| `CLAUDE.section.md` | appended to `CLAUDE.md`, which you create with the app's name and its `pnpm` commands above it |
+
+Then spread the limits into `eslint.config.mjs` (`import limits from "./eslint.limits.mjs"` and `...limits` last in the exported array), and add two scripts: `"test": "vitest run"` and `"rules": "node .claude/hooks/check-file.mjs --all"`.
+
+Claude Code reads hooks when a session starts, so in this session they are not live. Follow the rules in `CLAUDE.section.md` by hand as you build, and let `pnpm rules` tell you what you missed.
 
 Then read the README of every `@cordwood` package in `node_modules`. They are short, and every call you write in step 5 comes from them.
 
@@ -71,7 +85,7 @@ Write every user-facing sentence in the app's language. Run `pnpm exec tsc --noE
 
 The base is done when a person can use it, not when it compiles.
 
-1. `pnpm exec tsc --noEmit`, `pnpm lint` and `pnpm build` pass.
+1. `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm rules`, `pnpm test` and `pnpm build` pass.
 2. Start `pnpm dev` in the background and wait for both the emulators and Next to be ready.
 3. Walk the flow in a browser if you have a browser tool. Without one, walk it with `curl` and the emulators' REST endpoints, and say that no one has seen the screens.
 
@@ -94,7 +108,24 @@ Fix every failure before going on. A step you could not check is reported as not
 
 Leave the dev server running. Make the first commit (`git init` when there is no repository), with `.env.development` in and `.env.local` out.
 
-Tell the user, briefly: the address to open, how to sign up, what works, what waits for a key (billing needs Stripe, real e-mail needs SendGrid), and which walk steps were not checked. Write the same into the project's `README.md`, with the `pnpm dev` command first.
+**Give the project a home on GitHub.** Run `git remote -v`. When a remote already points at GitHub, push to it and go on. When there is none, create the repository, private:
+
+```bash
+gh auth status
+gh repo create <app> --private --source . --remote origin --push
+```
+
+- The repository is private by default. Make it public only when the user asked for that in their own words.
+- It goes under the account `gh` is signed in to. Use an organisation only when the user named one.
+- If the name is taken, try `<app>-app`, then ask.
+- Before the push, check that no secret is staged: `git ls-files` shows `.env.development` and `.env.example` and no other `.env` file.
+- After creating it, set the repository up: `gh repo edit --delete-branch-on-merge --enable-wiki=false --enable-issues --enable-projects`. A merged branch is deleted, the wiki is off, issues and projects are on. Leave a repository you did not create as it is.
+- Do not add branch rules to it. GitHub offers rulesets and branch protection on a private repository only on a paid plan, and the call fails on a free one. Mention this once in the hand-over, as something to turn on if the plan allows.
+- If `gh` is missing or not signed in, do not stop the hand-over. Say that the repository was not created and give the two commands to run after `gh auth login`.
+
+Tell the user that the rule hooks start working in their next Claude Code session, and what they enforce in one line.
+
+Tell the user, briefly: the address to open, the repository's address, how to sign up, what works, what waits for a key (billing needs Stripe, real e-mail needs SendGrid), and which walk steps were not checked. Write the same into the project's `README.md`, with the `pnpm dev` command first.
 
 ## 8. Now the business rules
 
@@ -122,3 +153,4 @@ A package bug, a missing capability any app would need, a README that sent you t
 - Do not hard-code a tenant, a user or a secret to get past a step.
 - Do not turn off the client rules that deny Firestore, even to debug.
 - Do not ask the user for a Stripe or SendGrid key to finish the base. It runs without them.
+- Do not create a public repository, or push to one the user did not point you at.

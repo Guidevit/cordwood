@@ -45,7 +45,7 @@ When unsure, write the problem down in one sentence that names no app. If the se
 
 5. **Describe the change for the release.** For a package, add a changeset: a file in `.changeset/` naming the package and `patch` for a fix or `minor` for an addition, with one sentence a user of the package would understand. For the plugin, raise `version` in `plugin/.claude-plugin/plugin.json` and in `.claude-plugin/marketplace.json`.
 
-6. **Commit** with a message that says what was wrong and what it does now.
+6. **Commit** on a new branch, with a message that says what was wrong and what it does now.
 
 ## Send it
 
@@ -75,11 +75,11 @@ git push -u fork fix/<short-name>
 Then open the pull request against `main`, in both cases, and watch its checks:
 
 ```bash
-gh pr create --repo Guidevit/cordwood --base main --title "<what was wrong>" --body "<the failing case, and what it does now>"
+gh pr create --repo Guidevit/cordwood --base main --title "<what was wrong>" --body-file <file>
 gh pr checks --watch
 ```
 
-The body names the failing case and the fix, and nothing of the app. If CI fails on the pull request, fix it on the same branch. Without `gh`, give the user the text of an issue to open.
+Write the body to a file first. It names the failing case and the fix, and nothing of the app, and it carries one small visual of the change: a `diff` block of the lines that matter, or a `text` block with the call before and after. If CI fails on the pull request, fix it on the same branch. Without `gh`, give the user the text of an issue to open.
 
 Merging is the owner's decision. Do not merge your own pull request, and do not merge the "Version Packages" pull request that publishes to npm. Give the user the link, and keep the app moving with the narrowest workaround, with a comment on it that links the pull request. Once the fix is merged and released, update the app: `pnpm update @cordwood/<name>`.
 

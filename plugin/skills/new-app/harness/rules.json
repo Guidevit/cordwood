@@ -1,0 +1,20 @@
+{
+  "limits": {
+    "functionLines": 100,
+    "componentLines": 500,
+    "routeLines": 300,
+    "params": 6,
+    "complexity": 15
+  },
+  "header": {
+    "text": "Reason to change:",
+    "include": ["src/server/**", "src/lib/**", "src/app/**"],
+    "extensions": [".ts", ".tsx"]
+  },
+  "tests": {
+    "include": ["src/server/**/*.ts", "src/lib/**/*.ts"],
+    "exempt": "@tdd-exempt:"
+  },
+  "envFilesAllowed": [".env.development", ".env.example", ".env.test"],
+  "safeToDelete": ["node_modules", ".next", "dist", "coverage", ".turbo", ".emulator-data"]
+}

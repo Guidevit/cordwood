@@ -1,7 +1,7 @@
 {
   "name": "cordwood",
   "description": "Teaches Claude Code to wire the @cordwood packages and components into a Next.js and Firebase app",
-  "version": "0.2.5",
+  "version": "0.4.1",
   "author": {
     "name": "Guidevit"
   },
