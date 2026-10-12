@@ -38,8 +38,10 @@ Run in the target folder. Use `.` as the name when the folder is the project.
 
 ```bash
 pnpm create next-app@latest . --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --yes
-npx shadcn@latest init -d
+npx shadcn@latest init -b radix -p nova -y
 ```
+
+The cordwood components are written on the Radix primitives. `init -d` picks the Base UI preset, where `tour-card` and `members-table` do not compile, so name the base. `components.json` should say `"style": "radix-nova"`.
 
 Add the cordwood registry to `components.json` (see the `cordwood` skill's `references/components.md`), then:
 

@@ -4,7 +4,7 @@ Six components install the shadcn/ui way: the CLI copies the source into the app
 
 ## Before the first one
 
-1. The project has a `components.json`. If not, shadcn/ui is not set up: ask before running `npx shadcn init`.
+1. The project has a `components.json`. If not, shadcn/ui is not set up: ask before running `npx shadcn init`. Its `style` must be a Radix one (`radix-nova`, `new-york`). On a Base UI style (`base-nova`) `tour-card` and `members-table` do not compile: say so before adding them.
 2. Add the registry to `components.json`, keeping whatever `registries` already holds:
 
 ```json
