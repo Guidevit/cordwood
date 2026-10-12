@@ -138,6 +138,16 @@ describe("the cordwood skill", () => {
     expect(text).toContain("gh repo edit --delete-branch-on-merge --enable-wiki=false --enable-issues --enable-projects");
   });
 
+  it("installs the harness from files that exist, and runs it in the walk", () => {
+    const text = read("plugin/skills/new-app/SKILL.md");
+    for (const file of ["hooks/check-file.mjs", "hooks/guard-bash.mjs", "hooks/guard-harness.mjs", "hooks/lib.mjs", "rules.json", "settings.json", "eslint.limits.mjs", "CLAUDE.section.md"]) {
+      expect(() => read(`plugin/skills/new-app/harness/${file}`)).not.toThrow();
+      expect(text).toContain(`\`${file.includes("/") ? "hooks/" : file}\``);
+    }
+    expect(text).toContain("node .claude/hooks/check-file.mjs --all");
+    expect(text).toContain("`pnpm rules`");
+  });
+
   it("gives the registry address the registry is served from", () => {
     expect(components).toContain(
       "https://raw.githubusercontent.com/Guidevit/cordwood/main/registry/r/{name}.json",
