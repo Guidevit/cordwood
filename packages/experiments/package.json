@@ -1,0 +1,44 @@
+{
+  "name": "@cordwood/experiments",
+  "version": "0.1.0",
+  "description": "A/B tests: a stable arm per visitor, exposures and conversions counted once, and the comparison with its checks.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guidevit/cordwood.git",
+    "directory": "packages/experiments"
+  },
+  "homepage": "https://github.com/Guidevit/cordwood/tree/main/packages/experiments#readme",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "firestore.indexes.json"
+  ],
+  "cordwood": {
+    "firestoreIndexes": "./firestore.indexes.json"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "firebase-admin": ">=13"
+  },
+  "devDependencies": {
+    "@cordwood/firebase": "workspace:^",
+    "firebase-admin": "^14.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
