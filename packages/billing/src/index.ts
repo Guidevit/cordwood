@@ -9,11 +9,19 @@ import {
   type PortalStripe,
 } from "./checkout.js";
 import { readMirror, type SubscriptionMirror } from "./mirror.js";
+import {
+  openCharge,
+  readPayment,
+  syncPayment,
+  type ChargeInput,
+  type ChargeStripe,
+  type PaymentMirror,
+} from "./payments.js";
 import { receiveWebhook, type WebhookResponse, type WebhookStripe } from "./webhook.js";
 
 export type BillingConfig = {
   /** The app's Stripe client, built with its secret key and the API version it pins. */
-  stripe: CheckoutStripe & PortalStripe & WebhookStripe;
+  stripe: CheckoutStripe & PortalStripe & WebhookStripe & ChargeStripe;
   firestore: Firestore;
   /**
    * The app's own origin, such as `https://app.example.com`, for the addresses Stripe returns to. From
@@ -33,6 +41,15 @@ export type Billing = {
   portal(input: PortalInput): Promise<string | null>;
   /** The tenant's subscription as last mirrored from Stripe, or null when it never had one. */
   subscription(tenantId: string): Promise<SubscriptionMirror | null>;
+  /**
+   * A one-off Pix charge for something the tenant buys once. Answers the code to show, the same one
+   * while it is open. Throws `AlreadyPaid` once the reference is paid.
+   */
+  charge(input: ChargeInput): Promise<PaymentMirror>;
+  /** A one-off payment as last mirrored from Stripe, or null when nothing was charged under the reference. */
+  payment(tenantId: string, reference: string): Promise<PaymentMirror | null>;
+  /** The same, read from Stripe now and written to the mirror: what an "I have paid" button calls. */
+  syncPayment(tenantId: string, reference: string): Promise<PaymentMirror | null>;
   /** Verifies and applies one webhook delivery. Pass the body exactly as it arrived. */
   handleWebhook(rawBody: string | Buffer, signature: string | null): Promise<WebhookResponse>;
 };
@@ -55,6 +72,9 @@ export function createBilling(config: BillingConfig): Billing {
     checkout: (input) => openCheckout(stripe, firestore, origin, input),
     portal: (input) => openPortal(stripe, firestore, origin, input),
     subscription: (tenantId) => readMirror(firestore, tenantId),
+    charge: (input) => openCharge(stripe, firestore, input),
+    payment: (tenantId, reference) => readPayment(firestore, tenantId, reference),
+    syncPayment: (tenantId, reference) => syncPayment(stripe, firestore, tenantId, reference),
     handleWebhook: (rawBody, signature) =>
       receiveWebhook(
         { stripe, firestore, webhookSecret: config.webhookSecret, log },
@@ -72,6 +92,16 @@ export const STRIPE_CLIENT_OPTIONS = {
 
 export { LiveSubscription, PriceNotFound, type CheckoutInput, type PortalInput } from "./checkout.js";
 export { OwnerMismatch } from "./customer.js";
+export {
+  AlreadyPaid,
+  PAYMENTS,
+  paymentOf,
+  type ChargeInput,
+  type PaymentMirror,
+  type PaymentNotice,
+  type PaymentStatus,
+  type PixCode,
+} from "./payments.js";
 export {
   LIVE_STATUSES,
   PAYING_STATUSES,

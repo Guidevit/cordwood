@@ -1,4 +1,4 @@
-export { adminApp, auth, firestore } from "./admin.js";
+export { adminApp, auth, bucket, firestore } from "./admin.js";
 export { TENANTS, isDocumentId, tenantRef } from "./tenant.js";
 export {
   collectFragments,

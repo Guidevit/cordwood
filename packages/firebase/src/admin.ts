@@ -1,11 +1,12 @@
 // How a server reaches Firebase through firebase-admin.
 //
 // Only the server holds firebase-admin: the browser never opens Firestore, and the client rules deny
-// everything. Credentials come from Application Default Credentials, or from the emulators when
+// everything, in Firestore and in Cloud Storage alike. Credentials come from Application Default Credentials, or from the emulators when
 // FIRESTORE_EMULATOR_HOST / FIREBASE_AUTH_EMULATOR_HOST are set.
 import { type App, getApps, initializeApp } from "firebase-admin/app";
 import { type Auth, getAuth } from "firebase-admin/auth";
 import { type Firestore, getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 /** The process's one app: the one already initialised, or a new one from the environment. */
 export function adminApp(): App {
@@ -19,4 +20,13 @@ export function firestore(): Firestore {
 /** Firebase Auth as the server sees it: session cookies, custom claims, user management. */
 export function auth(): Auth {
   return getAuth(adminApp());
+}
+
+/**
+ * A Cloud Storage bucket as the server sees it. Name the bucket from the deployment's configuration.
+ * With no name it is the app's default one, which exists only when the app was initialised with a
+ * `storageBucket`. With FIREBASE_STORAGE_EMULATOR_HOST set, the same calls reach the emulator.
+ */
+export function bucket(name?: string): ReturnType<ReturnType<typeof getStorage>["bucket"]> {
+  return getStorage(adminApp()).bucket(name);
 }

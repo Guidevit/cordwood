@@ -23,10 +23,10 @@ const sourceOf = (name: string) =>
 
 // The names the skill tells Claude to call, by the package that must still have them.
 const NAMED: Record<string, string[]> = {
-  firebase: ["firestore", "auth", "tenantRef", "isDocumentId", "--check"],
+  firebase: ["firestore", "auth", "tenantRef", "isDocumentId", "bucket", "--check"],
   auth: ["defineRoles", "createAuth", "managePermission", "exchange", "cookieName", "cookieOptions", "require", "admit", "changeRole", "remove", "continueUrl", "deliver"],
   email: ["createEmailSender", "subscriptionFrom", "failureStatus", "createEventReader", "subscription"],
-  billing: ["createBilling", "STRIPE_CLIENT_OPTIONS", "checkout", "portal", "handleWebhook", "LiveSubscription", "PAYING_STATUSES", "successPath", "cancelPath", "returnPath"],
+  billing: ["createBilling", "STRIPE_CLIENT_OPTIONS", "checkout", "portal", "handleWebhook", "LiveSubscription", "PAYING_STATUSES", "successPath", "cancelPath", "returnPath", "charge", "syncPayment", "AlreadyPaid"],
   analytics: ["defineEvents", "createAnalytics", "timeZone", "record", "engagement"],
   surveys: ["createSurveys", "triggers", "usingSince", "ask", "answer", "results"],
   changelog: ["createChangelog", "status", "markRead", "subscribe", "unsubscribe", "applyMailEvents", "SendStopped", "oneClickUrl", "unsubscribePath", "forget"],

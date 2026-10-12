@@ -3,18 +3,20 @@ import { isDocumentId } from "@cordwood/firebase";
 import type { Firestore } from "firebase-admin/firestore";
 import type Stripe from "stripe";
 import { mirrorOf, writeMirror, type MirrorWrite } from "./mirror.js";
+import { processPaymentEvent, type ChargeStripe, type PaymentNotice } from "./payments.js";
 
-export type WebhookStripe = Pick<Stripe, "webhooks" | "subscriptions">;
+export type WebhookStripe = Pick<Stripe, "webhooks" | "subscriptions"> & ChargeStripe;
 
 /**
- * What a delivery did. `ignored`: the event names no subscription (a one-off payment, a customer).
+ * What a delivery did. `ignored`: the event names no subscription and no payment of this package's.
  * `no_tenant`: the subscription's `metadata.tenant` is missing or is no document id, so it was not
  * created by this package. The rest are the mirror's own answers.
  */
 export type WebhookResult = MirrorWrite | "ignored" | "no_tenant";
 
 export type WebhookResponse =
-  | { status: 200; result: WebhookResult }
+  /** `payment` is set when the event was about a one-off payment: act on its `status`. */
+  | { status: 200; result: WebhookResult; payment?: PaymentNotice }
   | { status: 400; error: "invalid_signature" }
   | { status: 500; error: "not_configured" | "not_written" };
 
@@ -126,6 +128,10 @@ export async function receiveWebhook(
     return { status: 400, error: "invalid_signature" };
   }
   try {
+    if (event.type.startsWith("payment_intent.")) {
+      const done = await processPaymentEvent(stripe, config.firestore, event, log);
+      return { status: 200, result: done.result, ...(done.payment ? { payment: done.payment } : {}) };
+    }
     return { status: 200, result: await processEvent(stripe, config.firestore, event, log) };
   } catch (error) {
     // A Stripe or Firestore code, else the error's name: never its message, which can echo a key.

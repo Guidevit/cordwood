@@ -11,6 +11,7 @@ No module of its own. Import `firestore()`, `auth()` and `tenantRef(db, tenantId
 - Credentials are Application Default Credentials. With `FIRESTORE_EMULATOR_HOST` or `FIREBASE_AUTH_EMULATOR_HOST` set, the same calls reach the emulators.
 - Deploy Firestore rules that deny every client read and write. The README has the 8 lines.
 - `isDocumentId(value)` checks any id that arrives in a URL before it reaches `doc()`.
+- `bucket(name)` is a Cloud Storage bucket for a tenant's files, kept under `tenants/{tenantId}/`. Name it from an environment variable. Deploy Storage rules that deny everything too, and serve each file from a route that starts with `access.require`. Locally, add the `storage` emulator to `firebase.json` and to the `--only` list of the `dev` script.
 - `pnpm exec cordwood-firebase indexes` merges every installed package's indexes into `firestore.indexes.json`. Add `--check` to CI.
 
 ## @cordwood/auth
@@ -55,6 +56,22 @@ No module of its own. Import `firestore()`, `auth()` and `tenantRef(db, tenantId
 - `checkout` throws `LiveSubscription` when the tenant already has one: answer 409 and offer the portal.
 - To decide what a tenant may do, read `billing.subscription(tenantId)` and test `PAYING_STATUSES.has(status)`. Never call Stripe for that.
 - On Stripe, the webhook endpoint sends `customer.subscription.*`, `checkout.session.completed` and `invoice.*`.
+
+**Something bought once, by Pix.** For an order, an event or a pack, not a plan.
+
+| Route | Calls |
+|---|---|
+| `POST /api/.../pay` | `billing.charge({ tenantId, reference, amount, email })`, answers `payment.pix` for the page to show |
+| `POST /api/.../paid` | `billing.syncPayment(tenantId, reference)`, behind an "I have paid" button |
+| `POST /api/billing/webhook` | the same route as above: when `response.payment?.status === "paid"`, open what was bought |
+
+- `reference` is a document id of the app's own: the order's id. The amount is computed on the server, in centavos, never read from the request.
+- `charge` throws `AlreadyPaid`: answer 409.
+- Opening what was bought must be safe to repeat. Stripe delivers an event more than once.
+- The page draws the QR code from `payment.pix.qrPng`, or from `payment.pix.code` with a QR library, and offers `code` as the text to copy.
+- The webhook endpoint also sends `payment_intent.*`.
+- Pix must be turned on for the Stripe account, and in Brazil that is by invitation. Say so before building on it.
+- With no webhook reaching the machine (local development), `syncPayment` is what notices a payment. In test mode `succeed_immediately@example.com` as the `email` pays within seconds.
 
 ## @cordwood/analytics
 
