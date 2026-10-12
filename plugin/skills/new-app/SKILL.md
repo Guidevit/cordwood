@@ -38,8 +38,10 @@ Run in the target folder. Use `.` as the name when the folder is the project.
 
 ```bash
 pnpm create next-app@latest . --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --yes
-npx shadcn@latest init -d
+npx shadcn@latest init -b radix -p nova -y
 ```
+
+The cordwood components are written on the Radix primitives. `init -d` picks the Base UI preset, where `tour-card` and `members-table` do not compile, so name the base. `components.json` should say `"style": "radix-nova"`.
 
 Add the cordwood registry to `components.json` (see the `cordwood` skill's `references/components.md`), then:
 
@@ -142,7 +144,7 @@ From here on the `cordwood` skill's rules hold for every feature. The tenant com
 
 ## When cordwood itself is the problem
 
-A package bug, a missing capability any app would need, a README that sent you to a wrong call, or a step this skill got wrong: use the `improve` skill. It fixes the cause in the cordwood repository and pushes it. Do not leave a silent workaround in the app.
+A package bug, a missing capability any app would need, a README that sent you to a wrong call, or a step this skill got wrong: use the `improve` skill. It fixes the cause in the cordwood repository and opens a pull request with it. Do not leave a silent workaround in the app.
 
 ## Do not
 

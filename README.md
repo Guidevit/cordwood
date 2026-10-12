@@ -77,7 +77,7 @@ The new project also gets a small rule harness in `.claude/`: hooks that hold fu
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 
-**`improve`** runs when Claude meets a bug in a package, something missing that any app would need, or a wrong instruction in a skill. It fixes the cause in this repository with a test and opens a pull request. With write access it merges the pull request once CI passes, and then the release, so the fix is on npm minutes later.
+**`improve`** runs when Claude meets a bug in a package, something missing that any app would need, or a wrong instruction in a skill. It fixes the cause in this repository with a test and opens a pull request, from a branch here with write access and from a fork without it. It never pushes to `main` and never merges: you read the change, and merging the release is what puts it on npm.
 
 To use the skills without the plugin, copy the folders in [`plugin/skills`](plugin/skills) into your project's `.claude/skills/`.
 

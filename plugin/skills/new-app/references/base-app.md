@@ -21,7 +21,7 @@ What to build, in order. Each package's exact options and return values are in `
 }
 ```
 
-`emulators:exec` sets `FIRESTORE_EMULATOR_HOST`, `FIREBASE_AUTH_EMULATOR_HOST` and `GCLOUD_PROJECT` for the command inside it, so firebase-admin reaches the emulators with no credentials. Add `.emulator-data` and `*-debug.log` to `.gitignore`.
+`emulators:exec` sets `FIRESTORE_EMULATOR_HOST`, `FIREBASE_AUTH_EMULATOR_HOST` and `GCLOUD_PROJECT` for the command inside it, so firebase-admin reaches the emulators with no credentials. Add `.emulator-data` and `*-debug.log` to `.gitignore`. The `.gitignore` that `create-next-app` writes ignores `.env*`, so also add `!.env.development` and `!.env.example`, or the two files that must be committed are left out.
 
 **`.env.development`** is committed. It holds only values that are safe to publish:
 
@@ -54,12 +54,17 @@ All under `src/server/`. Each starts with `import "server-only"`.
 | `tours.ts` | `tours` |
 | `session.ts` | `currentSession()`, `requireSession()`, `setSessionCookie()`, `clearSessionCookie()` |
 | `links.ts` | `signLink()`, `readLink()` |
+| `env.ts` | `APP_NAME`, `APP_ORIGIN`, `APP_SECRET`, `VISITOR_SECRET` |
 
 **Roles.** Start with `owner` (everything, including `members.manage` and `billing.manage`), `admin` (the same without billing) and `member` (`app.read`, `app.write`). The business rules add permissions later.
 
 **`sendOrShow(message, link)`.** With `SENDGRID_API_KEY` set, it sends the message and answers nothing. Without it, outside production, it sends nothing and answers the link, which the route passes to the page under a `devLink` field. The page shows it in a clearly marked dev box. In production with no key it throws. This is what lets the base run with no e-mail account.
 
 **`session.ts`.** `currentSession()` reads the cookie with `cookies()` and calls `cordwood.sessions.read`. `requireSession()` redirects to `/sign-in` when there is none or it has no tenant. `setSessionCookie(cookie)` uses `cordwood.cookieName` and `cordwood.cookieOptions`, with one change: `secure` is true only in production. Safari drops a `Secure` cookie on `http://localhost`.
+
+**`env.ts`.** One module reads `APP_ORIGIN`, `APP_SECRET` and `VISITOR_SECRET` and the others import them from it. `next build` evaluates every route module with `.env.production` and nothing else, so on a machine with no production configuration these are unset, and `createChangelog`, `createBilling` and `createVisitors` throw at import. In `env.ts`, answer a placeholder when `process.env.NEXT_PHASE === "phase-production-build"` and throw for a missing value at any other time. Without this, `pnpm build` in step 6 fails at "Collecting page data".
+
+**Cache Components.** `create-next-app` turns `cacheComponents` on from Next 16.4. A page that reads the session cannot be prerendered, and the session is checked against the account on every request, so it must not be cached either. Put `export const instant = false` in `src/app/(app)/layout.tsx` and in each page under it, and call `await connection()` (from `next/server`) at the top of `requireSession()`, before the session is read. The build fails with "uncached or runtime data during prerendering" without the first, and `next dev` reports "unstable value `Date.now()` while prerendering" on every page without the second.
 
 **`links.ts`.** A sign-up link carries `{ email, company, expires }` and an HMAC-SHA256 of it under `APP_SECRET`. `readLink` checks the signature with `timingSafeEqual` and the expiry (one hour). Refuse to start when `APP_SECRET` is shorter than 32 characters.
 

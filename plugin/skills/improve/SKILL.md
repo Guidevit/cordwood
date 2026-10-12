@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Use while building with @cordwood when a package has a bug, lacks something any app would need, or its README sent you to a wrong call, and when a cordwood skill gave an instruction that was wrong, missing or out of date. Fixes the cause in the Guidevit/cordwood repository, with a test, and pushes it, so the next app does not meet the same problem. Also in Portuguese (bug no package, faltou no framework, a skill errou, melhorar o cordwood).
+description: Use while building with @cordwood when a package has a bug, lacks something any app would need, or its README sent you to a wrong call, and when a cordwood skill gave an instruction that was wrong, missing or out of date. Fixes the cause in the Guidevit/cordwood repository, with a test, and always proposes it as a pull request, never a push to main, so the next app does not meet the same problem. Also in Portuguese (bug no package, faltou no framework, a skill errou, melhorar o cordwood).
 ---
 
 # Improve cordwood from the field
@@ -49,35 +49,53 @@ When unsure, write the problem down in one sentence that names no app. If the se
 
 ## Send it
 
-Check what you may do: `gh api repos/Guidevit/cordwood --jq .permissions.push`.
+Every fix goes up as a pull request, whether or not you may push to the repository. Never push to `main`: the owner reads the change before it reaches every other app.
 
-**With push access (`true`)**: `main` takes no direct push. Send the fix as a pull request and merge it once CI passes.
+Commit on a branch of its own, cut from an up-to-date `main` and named after the problem.
 
 ```bash
-git switch -c fix/<two-or-three-words>
-git push -u origin HEAD
-gh pr create --title "<what it fixes>" --body-file <file>
-gh pr checks --watch
-gh pr merge --squash --delete-branch
+git switch -c fix/<short-name>
 ```
 
-Write the pull request's body to a file first. It says what failed, in which case, and what the code does now, and it carries one small visual of the change: a `diff` block of the lines that matter, or a `text` block with the call before and after.
+Check what you may do: `gh api repos/Guidevit/cordwood --jq .permissions.push`.
 
-For a package change, the release workflow then opens or updates a pull request named "Version Packages" and starts CI on it. Wait for it with `gh pr checks <number> --watch`, then merge it with `gh pr merge <number> --squash`. That publishes the new version to npm. Wait for the release run, then update the app: `pnpm update @cordwood/<name>`.
+**With push access (`true`)**: push the branch to the repository.
 
-**Without push access**: push a branch to a fork and open a pull request with `gh pr create`, describing the failing case and the fix. Without `gh`, give the user the text of an issue to open. Then keep the app moving with the narrowest workaround, and leave a comment on it that links the pull request.
+```bash
+git push -u origin fix/<short-name>
+```
+
+**Without push access**: push the branch to a fork.
+
+```bash
+gh repo fork Guidevit/cordwood --remote --remote-name fork
+git push -u fork fix/<short-name>
+```
+
+Then open the pull request against `main`, in both cases, and watch its checks:
+
+```bash
+gh pr create --repo Guidevit/cordwood --base main --title "<what was wrong>" --body-file <file>
+gh pr checks --watch
+```
+
+Write the body to a file first. It names the failing case and the fix, and nothing of the app, and it carries one small visual of the change: a `diff` block of the lines that matter, or a `text` block with the call before and after. If CI fails on the pull request, fix it on the same branch. Without `gh`, give the user the text of an issue to open.
+
+Merging is the owner's decision. Do not merge your own pull request, and do not merge the "Version Packages" pull request that publishes to npm. Give the user the link, and keep the app moving with the narrowest workaround, with a comment on it that links the pull request. Once the fix is merged and released, update the app: `pnpm update @cordwood/<name>`.
+
+Several fixes found in one session may share a pull request, one commit per problem.
 
 ## Then return to the app
 
-- Remove any workaround the fix made unnecessary.
-- Tell the user in two lines what was wrong upstream and what you changed, with the commit or pull request link.
-- A skill fix reaches other sessions when the plugin updates (`/plugin marketplace update cordwood`). In this session you already know the correction: follow it.
+- Remove a workaround once its fix is merged and released. Until then it stays, with its comment.
+- Tell the user in two lines what was wrong upstream and what you changed, with the pull request link.
+- A skill fix reaches other sessions once it is merged and the plugin updates (`/plugin marketplace update cordwood`). In this session you already know the correction: follow it.
 
 ## Limits
 
 - **Nothing of the app goes upstream.** No app code, no customer or product name, no key, no real e-mail address, no data from its database. The repository is public. Write the test with invented values.
-- **A breaking change waits for the user.** Removing or renaming something exported, or changing what a call returns, breaks every other app. Describe it and ask before pushing.
+- **A breaking change waits for the user.** Removing or renaming something exported, or changing what a call returns, breaks every other app. Describe it and ask before opening the pull request.
 - **Stop and ask when the fix is not small.** A new package, a redesign of an API, or a change across three or more packages is a decision for the repository's owner.
 - **One problem per commit.** Do not tidy unrelated code while you are there.
-- **Never skip CI, merge with `--admin`, force-push, or publish from your machine.** A red check means the fix is not ready. The release runs in GitHub Actions only.
-- **If the push or the merge is refused**, by GitHub or by a permission prompt, do not look for another way in. Report what you prepared and where it is.
+- **Never push to `main`, skip CI, force-push, or publish from your machine.** The release runs in GitHub Actions only.
+- **If the push or the pull request is refused**, by GitHub or by a permission prompt, do not look for another way in. Report what you prepared and where it is.
