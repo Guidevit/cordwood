@@ -104,6 +104,20 @@ pnpm typecheck
 
 `pnpm test:stripe` needs a file named `.env` at the root with `STRIPE_SECRET_KEY` set to a test-mode key of a sandbox you can fill with test objects. Git ignores that file. The suite refuses a live key.
 
+### Sending a change
+
+`main` takes no direct push. Open a pull request, and merge it once the `check` job passes:
+
+```bash
+git switch -c fix/short-name
+git push -u origin HEAD
+gh pr create
+gh pr checks --watch
+gh pr merge --squash --delete-branch
+```
+
+A change to a package also needs a changeset (`pnpm changeset`). After the merge, the release workflow opens a "Version Packages" pull request, and merging that one publishes to npm.
+
 Build before the first type-check: a package reads the types of the packages it depends on from their `dist`.
 
 A change to a package ships with a changeset. Run `pnpm changeset`, pick the package and the bump, and commit the file it writes.
