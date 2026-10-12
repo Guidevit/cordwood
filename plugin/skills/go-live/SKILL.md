@@ -14,6 +14,7 @@ Load the `cordwood` skill too. Read the app's `README.md` and `.env.example` fir
 - **Ask before each command that creates or changes something in a cloud account.** A project id, a database location and a Stripe account's country cannot be changed later. Say what the command will create, then run it on a yes.
 - **Never handle a secret's value.** Do not type a key into a page, read one back in the chat, or write one to a file that git tracks. The user pastes it into the host's secret store, or into `.env.local` for a local try. Give the command and let them run it.
 - **A click that belongs to the user stays theirs.** Accepting terms, turning on billing, verifying a business, buying a domain. With a browser tool, open the page and say which button. Without one, give the address and the path.
+- **Spend nothing by default.** Blaze is pay as you go with a free allowance, and a new app fits inside it when each choice is made for that. Take the no-cost option every time, even when it is slower or farther from the users, and say which things cannot be free. Step 5 has the settings.
 - **Deploy nothing the checks refuse.** `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm test` when it exists, and `pnpm build` pass before every deploy.
 - **Report a step you could not check as not checked.**
 
@@ -24,18 +25,18 @@ Tell the user the whole list once, before doing anything, so nothing arrives as 
 | Needs | Who | Costs |
 |---|---|---|
 | A private GitHub repository with the code pushed | You (`new-app` step 7) | Free |
-| A real Firebase project on the Blaze plan | You create it, the user links billing | Pay as you go. Blaze is required by App Hosting and by Cloud Storage |
+| A real Firebase project on the Blaze plan | You create it, the user links billing | Nothing while inside the free allowance, which this skill keeps to. Blaze is required by App Hosting and by Cloud Storage |
 | Firebase App Hosting for the Next.js server | You | Inside Blaze |
 | A domain, and access to its DNS | The user | Yearly |
 | A Stripe account, verified | The user | A fee per payment |
-| A SendGrid account with the domain authenticated | The user | No free plan: a 60-day trial, then paid |
+| A SendGrid account with the domain authenticated | The user | The one cost that cannot be avoided: a 60-day trial, then a paid plan |
 | Terms of use and a privacy notice | The user, with a lawyer | |
 
 Then ask, in one message, only for what has no safe default:
 
 1. **The domain**, or whether to start on the host's own address.
 2. **The project id**, with a proposal (`<app>-prod`). It is public and permanent.
-3. **Where the data lives.** Propose the Firestore location nearest the users. It is permanent.
+3. **Where the data lives.** Propose the Firestore location nearest the users: its free allowance holds in any location. It is permanent.
 4. **Stripe in test mode or live.** Going live with test keys first is a sound way to walk the whole flow.
 
 Everything else below has a default.
@@ -72,7 +73,7 @@ Check each command's `--help` before running it: the CLI changes.
   firebase deploy --only firestore:rules,firestore:indexes --project <project-id>
   ```
 
-- **Cloud Storage**, when the app uses `bucket`. The user creates the default bucket in the console (Storage, then Get started), since it asks for a location and for Blaze. A new one is named `<project-id>.firebasestorage.app`: that is `FIREBASE_STORAGE_BUCKET`, or whichever variable the app names its bucket with. Then `firebase deploy --only storage --project <project-id>` for the rules that deny everything.
+- **Cloud Storage**, when the app uses `bucket`. The user creates the default bucket in the console (Storage, then Get started), since it asks for a location and for Blaze. Only `us-central1`, `us-east1` and `us-west1` have a no-cost allowance: propose the one nearest the server, not the one nearest the users. A new one is named `<project-id>.firebasestorage.app`: that is `FIREBASE_STORAGE_BUCKET`, or whichever variable the app names its bucket with. Then `firebase deploy --only storage --project <project-id>` for the rules that deny everything.
 - **Authorised domains.** Once the app has its address (step 6), the user adds it in Authentication, then Settings, then Authorised domains.
 
 ## 4. The host
@@ -131,11 +132,35 @@ firebase apphosting:secrets:set app-secret --project <project-id>
 
 A `NEXT_PUBLIC_` value is read when the app is built, so it must be available to the build. Search the code for anything that only works in development (a link shown on the page while there is no e-mail key, a button that skips payment) and confirm each one is switched off by `NODE_ENV === "production"`, not by a missing key alone.
 
+**Keep it inside the free allowance.** In `apphosting.yaml`:
+
+```yaml
+runConfig:
+  minInstances: 0     # no instance, and no charge, while nobody is using it
+  maxInstances: 2     # a burst cannot run up a bill
+  cpu: 1
+  memoryMiB: 512
+```
+
+Raise these only when the walk shows the app needs it, and say what it costs.
+
 Then deploy:
 
 ```bash
 firebase deploy --only apphosting:<app> --project <project-id>
 ```
+
+Every deploy leaves a build image and a copy of the source behind, and both are billed once they pass their allowance. After the first deploy, on a yes:
+
+```bash
+# keep the two latest images (policy file: one Keep rule with mostRecentVersions.keepCount 2, one Delete rule olderThan 1d)
+gcloud artifacts repositories set-cleanup-policies firebaseapphosting-images --project <project-id> \
+  --location <region> --policy cleanup.json --no-dry-run
+# delete uploaded source after a week (lifecycle file: Delete at age 7)
+gcloud storage buckets update gs://firebaseapphosting-sources-<project number>-<region> --lifecycle-file lifecycle.json
+```
+
+Secret Manager is free for 6 active secret versions. Count the secrets the app needs, and do not store as a secret what is safe as a plain value.
 
 Then ask the address for `/` and for an API route with no cookie. The page sends the visitor to sign-in and the route answers 401. The page's status can be 200 with the redirect inside the stream, so read the body, not only the code.
 
@@ -201,7 +226,8 @@ In test mode, pay with Stripe's test values. In live mode it is real money: ask 
 Say these at the end. None of them is a setting you missed.
 
 - **Terms of use and a privacy notice.** The app holds names and e-mail addresses, and maybe photos or payments. In Brazil that is the LGPD, and the notice names who holds the data and how to have it deleted. Write the pages when asked, and say they need a lawyer's reading.
-- **Backups.** Firestore has scheduled backups and point-in-time recovery, both off in a new database.
+- **Backups.** Firestore has scheduled backups and point-in-time recovery, both off in a new database and both billed. Leave them off until the user asks, and say that until then a deleted document is gone.
+- **A budget alert.** The user sets one on the billing account, at a small amount, so the first charge is a message and not a surprise. An alert warns. It does not stop the spending.
 - **Watching it.** The host's logs, and an alert on the billing budget.
 - **Abuse on public routes.** A route with no session, such as a sign-up or a guest upload, needs a limit before the address is shared widely.
 - **Deleting an account's data** on request.
@@ -215,6 +241,7 @@ A step here that was wrong, missing or out of date, or a package that cannot run
 ## Do not
 
 - Do not point `default` in `.firebaserc` at the real project.
+- Do not turn on anything billed (a minimum instance, backups, a bucket outside the no-cost regions) without saying its cost and getting a yes.
 - Do not reuse a development secret in production.
 - Do not turn the client rules of Firestore or Storage on to make something work.
 - Do not go live with a development shortcut reachable: a link shown on the page, a button that skips payment.
