@@ -142,6 +142,8 @@ Once you have the idea:
 
 From here on the `cordwood` skill's rules hold for every feature. The tenant comes from the session, every route starts with `access.require`, and a feature a package already covers is wired, not rewritten. Add a product event to `defineEvents` for each act worth counting, and a tour step for each new screen worth explaining.
 
+When the product does something a stranger could want, the `landing` skill builds its public page. Not before: a landing page needs real screens and real facts.
+
 ## When cordwood itself is the problem
 
 A package bug, a missing capability any app would need, a README that sent you to a wrong call, or a step this skill got wrong: use the `improve` skill. It fixes the cause in the cordwood repository and opens a pull request with it. Do not leave a silent workaround in the app.

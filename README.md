@@ -59,7 +59,7 @@ Claude builds the base, runs it on the Firebase emulators, walks sign-up and inv
 
 ## Claude Code skill
 
-The repository is also a Claude Code plugin with four skills. Install it once:
+The repository is also a Claude Code plugin with five skills. Install it once:
 
 ```
 /plugin install cordwood --marketplace Guidevit/cordwood
@@ -74,6 +74,12 @@ The repository is also a Claude Code plugin with four skills. Install it once:
 Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. It makes the first commit and, when the folder has no GitHub repository, creates a private one and pushes to it.
 
 The new project also gets a small rule harness in `.claude/`: hooks that hold functions to 100 lines and a complexity of 15, ask for a test beside every server module, refuse a commit that carries a secret, and make Claude ask before a command that deletes work or reaches a real Firebase project. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
+
+**`landing`** builds the public page for an app that already runs: one page with one action, the sign-up the app has. Every number on it comes from a facts file with its source, and a number still missing shows as a marked slot. The page stays unpublished until you turn on `LANDING` and every slot is filled. Visits and sign-ups are counted on the server with `@cordwood/experiments`, with no third-party tag.
+
+```
+/cordwood:landing
+```
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 
@@ -100,8 +106,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 585 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 401 that need no emulator, in about a second
+pnpm test        # 604 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 406 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```

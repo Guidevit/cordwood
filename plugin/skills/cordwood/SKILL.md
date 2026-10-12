@@ -7,7 +7,7 @@ description: Use when an app needs sign-in and sessions, roles or team members, 
 
 Nine npm packages and six shadcn components cover the parts every SaaS rebuilds: auth, billing, e-mail, analytics, surveys, release notes, experiments and tours. Install them. Do not write a session cookie, a Stripe webhook or an NPS rule by hand in a project that can use these.
 
-Starting from an empty folder? Use the `new-app` skill, which builds a running base from all of these and then comes back here.
+Starting from an empty folder? Use the `new-app` skill, which builds a running base from all of these and then comes back here. For the public page that sells the app, use the `landing` skill.
 
 ## Check the fit first
 

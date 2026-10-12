@@ -68,7 +68,7 @@ describe("the cordwood skill", () => {
       expect(() => read(`plugin/skills/cordwood/${target}`)).not.toThrow();
   });
 
-  it.each(["cordwood", "new-app", "improve", "go-live"])("gives %s the frontmatter and the files it points at", (name) => {
+  it.each(["cordwood", "new-app", "improve", "landing", "go-live"])("gives %s the frontmatter and the files it points at", (name) => {
     const text = read(`plugin/skills/${name}/SKILL.md`);
     const [, frontmatter] = /^---\n([\s\S]*?)\n---\n/.exec(text) ?? [];
     expect(frontmatter).toMatch(new RegExp(`^name: ${name}$`, "m"));
@@ -97,8 +97,8 @@ describe("the cordwood skill", () => {
       }
   });
 
-  it("sends both building skills to the improve skill, which names the commands this repository has", () => {
-    for (const name of ["cordwood", "new-app"])
+  it("sends the building skills to the improve skill, which names the commands this repository has", () => {
+    for (const name of ["cordwood", "new-app", "landing"])
       expect(read(`plugin/skills/${name}/SKILL.md`)).toContain("`improve` skill");
     const improve = read("plugin/skills/improve/SKILL.md");
     const scripts = (JSON.parse(read("package.json")) as { scripts: Record<string, string> }).scripts;
@@ -173,6 +173,27 @@ describe("the cordwood skill", () => {
     }
     expect(text).toContain("node .claude/hooks/check-file.mjs --all");
     expect(text).toContain("`pnpm rules`");
+  });
+
+  it("builds the landing page on the sign-up and the experiment calls the base app and the package have", () => {
+    const text = read("plugin/skills/landing/SKILL.md");
+    const page = read("plugin/skills/landing/references/page.md");
+    const measure = read("plugin/skills/landing/references/measure.md");
+    const base = read("plugin/skills/new-app/references/base-app.md");
+    for (const identifier of ["defineExperiments", "createVisitors", "sampleSize", "perArm", "expose", "convert", "arm", "results", "isRobot", "isPrefetch", "refusesTracking", "mismatch", "reached", "comparisons", "mint", "read"])
+      expect(sourceOf("experiments"), `experiments no longer has ${identifier}`).toContain(identifier);
+    for (const identifier of ["experiments.expose(", "experiments.convert(", "experiments.arm(", "experiments.results(", "visitors.mint()", "visitors.read", "isRobot", "isPrefetch", "refusesTracking", "sampleSize(", "split.mismatch", "cookieName"])
+      expect(measure, `the landing skill no longer mentions ${identifier}`).toContain(identifier);
+    // The page's one action is the base app's sign-up, at the paths the base app builds.
+    for (const route of ["POST /api/sign-up", "src/app/(public)/"]) {
+      expect(`${text}\n${measure}\n${page}`).toContain(route);
+      expect(base).toContain(route);
+    }
+    for (const file of ["facts.ts", "src/server/landing.ts", "proxy.ts"]) expect(`${page}\n${measure}`).toContain(file);
+    for (const other of ["`cordwood` skill", "`new-app` skill", "`improve` skill"]) expect(text).toContain(other);
+    for (const name of ["cordwood", "new-app"])
+      expect(read(`plugin/skills/${name}/SKILL.md`)).toContain("`landing` skill");
+    expect(read("README.md")).toContain("/cordwood:landing");
   });
 
   it("gives the registry address the registry is served from", () => {
