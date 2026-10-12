@@ -21,7 +21,7 @@ What to build, in order. Each package's exact options and return values are in `
 }
 ```
 
-`emulators:exec` sets `FIRESTORE_EMULATOR_HOST`, `FIREBASE_AUTH_EMULATOR_HOST` and `GCLOUD_PROJECT` for the command inside it, so firebase-admin reaches the emulators with no credentials. Add `.emulator-data` and `*-debug.log` to `.gitignore`.
+`emulators:exec` sets `FIRESTORE_EMULATOR_HOST`, `FIREBASE_AUTH_EMULATOR_HOST` and `GCLOUD_PROJECT` for the command inside it, so firebase-admin reaches the emulators with no credentials. Add `.emulator-data` and `*-debug.log` to `.gitignore`. The `.gitignore` that `create-next-app` writes ignores `.env*`, so also add `!.env.development` and `!.env.example`, or the two files that must be committed are left out.
 
 **`.env.development`** is committed. It holds only values that are safe to publish:
 

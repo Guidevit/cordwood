@@ -29,7 +29,7 @@ No module of its own. Import `firestore()`, `auth()` and `tenantRef(db, tenantId
 - A tenant's first member is admitted with `{ password }` in place of `continueUrl` and `deliver`, from the sign-up flow.
 - `deliver` sends the invite. Use `@cordwood/email` there. When it throws, the admission is undone.
 - `access.require` already refuses a cross-site write. Do not add a second CSRF check.
-- Server components read the session with `sessions.read`. Check the README for its exact input.
+- Server components read the session with `sessions.read(cookie)`: the cookie's value, or undefined. It answers the session, or null when there is none or it no longer holds.
 
 ## @cordwood/email
 

@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Claude Code skills for building with the @cordwood packages and components",
-    "version": "0.2.3"
+    "version": "0.2.4"
   },
   "plugins": [
     {
       "name": "cordwood",
       "source": "./plugin",
       "description": "Teaches Claude Code to wire the @cordwood packages and components into a Next.js and Firebase app",
-      "version": "0.2.3",
+      "version": "0.2.4",
       "category": "development"
     }
   ]

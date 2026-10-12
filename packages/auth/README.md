@@ -61,6 +61,15 @@ export async function POST(request: Request) {
 | `email_unverified` | Nobody proved the address. |
 | `stale_sign_in` | The sign-in is older than 5 minutes, so the token may have been lifted from elsewhere. |
 
+A server component reads the session from the cookie's value:
+
+```ts
+const session = await cordwood.sessions.read(cookieStore.get(cordwood.cookieName)?.value);
+// { uid, email, tenantId, role } | null
+```
+
+It answers null when there is no cookie, it expired, it was revoked, or the account no longer holds the tenant or role the cookie grants.
+
 A session lasts 5 days by default. Signing out calls `cordwood.sessions.end(cookie)`, which revokes the user's refresh tokens and ends their sessions on every device. Clearing the cookie alone would leave a copy of it working.
 
 ## Guard a route
