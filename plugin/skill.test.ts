@@ -1,10 +1,12 @@
 // The skill is a map of the packages and components. These keep the map from drifting off the territory.
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const root = path.resolve(import.meta.dirname, "..");
 const read = (file: string) => readFileSync(path.join(root, file), "utf8");
+/** Throws unless `target` is a file or a folder of the repository. */
+const readdirOrFile = (target: string) => statSync(path.join(root, target));
 const skill = read("plugin/skills/cordwood/SKILL.md");
 const wiring = read("plugin/skills/cordwood/references/wiring.md");
 const components = read("plugin/skills/cordwood/references/components.md");
@@ -114,6 +116,18 @@ describe("the cordwood skill", () => {
       plugins: { version: string }[];
     };
     expect(market.plugins[0]!.version).toBe(plugin.version);
+  });
+
+  it("offers a prompt in the README that points at files this repository has", () => {
+    const readme = read("README.md");
+    const prompt = /```text\n([\s\S]*?)```/.exec(readme)![1]!;
+    const paths = [...prompt.matchAll(/~\/\.cordwood\/repo\/(plugin\/[\w\/.-]*[\w])/g)].map((m) => m[1]!);
+    expect(paths.length).toBeGreaterThanOrEqual(3);
+    for (const target of paths) expect(() => readdirOrFile(target)).not.toThrow();
+    expect(prompt).toContain("https://github.com/Guidevit/cordwood");
+    expect(prompt).toContain("cordwood@cordwood");
+    for (const step of ["## 6. Run it and walk it", "## 8. Now the business rules"])
+      expect(read("plugin/skills/new-app/SKILL.md")).toContain(step);
   });
 
   it("gives the registry address the registry is served from", () => {

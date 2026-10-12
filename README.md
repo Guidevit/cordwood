@@ -30,6 +30,34 @@ npx shadcn add @cordwood/tour-card
 
 They use your app's own `Button`, `Dialog` and colours, and every word they show comes in through a `labels` prop. [Set the registry up](registry/README.md#install) once per app.
 
+## Start a new app with one prompt
+
+Open Claude Code in an empty folder, paste this, and replace the last line with your idea. Write the idea in any language: the app's screens follow it.
+
+```text
+Set up a new app on cordwood in this folder, then build my idea on top of it.
+
+1. Get the cordwood skills. Clone https://github.com/Guidevit/cordwood into
+   ~/.cordwood/repo, or run `git pull --ff-only` there if it already exists.
+2. Install the plugin for later sessions: run
+   `claude plugin marketplace add Guidevit/cordwood` and then
+   `claude plugin install cordwood@cordwood`. If either fails, tell me in one
+   line and carry on.
+3. Read ~/.cordwood/repo/plugin/skills/new-app/SKILL.md and follow it from
+   step 1 to step 8, without skipping the walk in step 6. Where it names
+   another skill or a reference file, read it from
+   ~/.cordwood/repo/plugin/skills/.
+4. When a package or a skill turns out to be wrong or missing something,
+   follow ~/.cordwood/repo/plugin/skills/improve/SKILL.md.
+
+Do not ask me to confirm the stack or the pages. Stop only where the skill
+says to stop. Leave the app running and tell me the address.
+
+My idea: <describe the product, who uses it and the first thing they do in it>
+```
+
+Claude builds the base, runs it on the Firebase emulators, walks sign-up and invites in the browser, and then asks you to confirm the data model of your first feature. You need Node 22, pnpm and Java 21 on the machine. No cloud account or key is needed to start.
+
 ## Claude Code skill
 
 The repository is also a Claude Code plugin with three skills. Install it once:
@@ -69,8 +97,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 521 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 337 that need no emulator, in about a second
+pnpm test        # 522 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 338 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```
