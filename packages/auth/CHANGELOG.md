@@ -1,5 +1,12 @@
 # @cordwood/auth
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [12f4290]
+  - @cordwood/firebase@0.2.0
+
 ## 0.1.2
 
 ### Patch Changes

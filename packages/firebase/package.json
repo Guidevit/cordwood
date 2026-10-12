@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/firebase",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "The server's seam to Firebase through firebase-admin: one app, and the tenant every other cordwood package writes under.",
   "license": "MIT",
   "repository": {
