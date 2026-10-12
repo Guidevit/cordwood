@@ -25,6 +25,8 @@ The packages assume all four of these. Say so and stop if the project breaks one
 | The admin app, a tenant's document, Firestore indexes | `@cordwood/firebase` | |
 | Sign-in, session cookie, roles, inviting and removing members | `@cordwood/auth` | `members-table` |
 | Stripe subscriptions per tenant | `@cordwood/billing` | `subscription-card` |
+| Something a tenant buys once, paid by Pix | `@cordwood/billing` | |
+| A tenant's files (photos, uploads) in Cloud Storage | `@cordwood/firebase` | |
 | Sending e-mail through SendGrid, reading bounces and complaints | `@cordwood/email` | |
 | Product events, DAU, WAU, MAU, stickiness | `@cordwood/analytics` | |
 | NPS, CSAT, CES inside the app | `@cordwood/surveys` | `survey-prompt` |
@@ -61,6 +63,7 @@ Tell the user when the request lands on one of these. None of them is a setting 
 - The browser side of sign-in. The app signs in with the Firebase client SDK and posts the ID token to a route that calls `sessions.exchange`.
 - Platform operators who see across tenants. `auth` knows tenant members only.
 - Creating Stripe products and prices. `billing` finds a price by its lookup key.
+- The price of something bought once, and drawing its Pix QR code.
 - Every sentence a user reads. E-mail bodies, survey questions and component labels are written in the app, in its language.
 - Where a survey prompt or a tour appears on screen.
 
