@@ -86,10 +86,11 @@ Work within what it offers, and check its pages for today's answer:
 - It needs the Blaze plan.
 
 ```bash
-firebase init apphosting --project <project-id>     # backend id, region, root directory
+firebase apphosting:backends:create --project <project-id> --non-interactive \
+  --backend <app> --primary-region <region> --app <web app id> --root-dir .
 ```
 
-It writes `apphosting.yaml` and an `apphosting` entry in `firebase.json`. Commit both.
+Then write `apphosting.yaml` (step 5) and an `apphosting` entry in `firebase.json` with `backendId`, `rootDir` and an `ignore` list (`node_modules`, `.git`, `.next`, `.emulator-data`). Commit both. `firebase init apphosting` does the same by asking questions. Add `"engines": { "node": ">=22" }` to `package.json`.
 
 The build runs away from this machine, from the committed `package.json`. A dependency installed from a local path (`file:`, `link:`) does not exist there: every `@cordwood` package must come from npm before the first deploy.
 
@@ -123,7 +124,7 @@ firebase apphosting:secrets:set app-secret --project <project-id>
 |---|---|---|
 | `APP_ORIGIN` | value | The live address, `https`, no trailing slash. Never the dev one |
 | `NEXT_PUBLIC_FIREBASE_*` | value | From `apps:sdkconfig` |
-| `APP_SECRET`, `VISITOR_SECRET`, `CRON_SECRET` | secret | New random ones: `openssl rand -hex 32`. Never the ones in `.env.development` |
+| `APP_SECRET`, `VISITOR_SECRET`, `CRON_SECRET` | secret | New random ones, never the ones in `.env.development`. These are nobody's key, so store them yourself, unseen: `openssl rand -hex 32 \| firebase apphosting:secrets:set app-secret --project <project-id> --data-file - --force --non-interactive`, then `firebase apphosting:secrets:grantaccess app-secret --backend <app> --project <project-id>` |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | secret | Step 7 |
 | `SENDGRID_API_KEY`, `SENDGRID_WEBHOOK_PUBLIC_KEY` | secret | Step 8 |
 | `EMAIL_FROM`, `EMAIL_NEWS_FROM`, `STRIPE_PRICE` | value | Steps 7 and 8 |
@@ -133,8 +134,10 @@ A `NEXT_PUBLIC_` value is read when the app is built, so it must be available to
 Then deploy:
 
 ```bash
-firebase deploy --only apphosting --project <project-id>
+firebase deploy --only apphosting:<app> --project <project-id>
 ```
+
+Then ask the address for `/` and for an API route with no cookie. The page sends the visitor to sign-in and the route answers 401. The page's status can be 200 with the redirect inside the stream, so read the body, not only the code.
 
 ## 6. The domain
 
