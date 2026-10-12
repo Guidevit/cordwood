@@ -12,9 +12,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # npm trusts this workflow by its OIDC identity: no token is stored anywhere.
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -27,14 +26,16 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      # Trusted publishing needs npm 11.5.1 or later, and Node 22 ships npm 10.
+      - run: npm install -g npm@latest
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm test
       # Opens a "Version Packages" pull request while changesets are pending,
       # and publishes to npm once that pull request is merged.
-      # Skipped where the secret is absent (a fork), so the run stays green there.
+      # Skipped in a fork: npm trusts this repository only.
       - uses: changesets/action@v1
-        if: env.NPM_TOKEN != ''
+        if: github.repository == 'Guidevit/cordwood'
         with:
           publish: pnpm release
         env:
