@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  # The release workflow starts this on the version branch: a pull request opened by a workflow
+  # triggers no run of its own, and main takes no merge without this check.
+  workflow_dispatch:
 
 jobs:
   check:

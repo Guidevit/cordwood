@@ -45,20 +45,25 @@ When unsure, write the problem down in one sentence that names no app. If the se
 
 5. **Describe the change for the release.** For a package, add a changeset: a file in `.changeset/` naming the package and `patch` for a fix or `minor` for an addition, with one sentence a user of the package would understand. For the plugin, raise `version` in `plugin/.claude-plugin/plugin.json` and in `.claude-plugin/marketplace.json`.
 
-6. **Commit** with a message that says what was wrong and what it does now.
+6. **Commit** on a new branch, with a message that says what was wrong and what it does now.
 
 ## Send it
 
 Check what you may do: `gh api repos/Guidevit/cordwood --jq .permissions.push`.
 
-**With push access (`true`)**: push to `main`. CI runs the whole suite again.
+**With push access (`true`)**: `main` takes no direct push. Send the fix as a pull request and merge it once CI passes.
 
 ```bash
-git push origin main
-gh run watch --exit-status
+git switch -c fix/<two-or-three-words>
+git push -u origin HEAD
+gh pr create --title "<what it fixes>" --body-file <file>
+gh pr checks --watch
+gh pr merge --squash --delete-branch
 ```
 
-For a package change, the release workflow then opens or updates a pull request named "Version Packages". Once CI is green on it, merge it with `gh pr merge --squash`. That publishes the new version to npm. Wait for the release run, then update the app: `pnpm update @cordwood/<name>`.
+Write the pull request's body to a file first. It says what failed, in which case, and what the code does now, and it carries one small visual of the change: a `diff` block of the lines that matter, or a `text` block with the call before and after.
+
+For a package change, the release workflow then opens or updates a pull request named "Version Packages" and starts CI on it. Wait for it with `gh pr checks <number> --watch`, then merge it with `gh pr merge <number> --squash`. That publishes the new version to npm. Wait for the release run, then update the app: `pnpm update @cordwood/<name>`.
 
 **Without push access**: push a branch to a fork and open a pull request with `gh pr create`, describing the failing case and the fix. Without `gh`, give the user the text of an issue to open. Then keep the app moving with the narrowest workaround, and leave a comment on it that links the pull request.
 
@@ -74,5 +79,5 @@ For a package change, the release workflow then opens or updates a pull request 
 - **A breaking change waits for the user.** Removing or renaming something exported, or changing what a call returns, breaks every other app. Describe it and ask before pushing.
 - **Stop and ask when the fix is not small.** A new package, a redesign of an API, or a change across three or more packages is a decision for the repository's owner.
 - **One problem per commit.** Do not tidy unrelated code while you are there.
-- **Never skip CI, force-push, or publish from your machine.** The release runs in GitHub Actions only.
+- **Never skip CI, merge with `--admin`, force-push, or publish from your machine.** A red check means the fix is not ready. The release runs in GitHub Actions only.
 - **If the push or the merge is refused**, by GitHub or by a permission prompt, do not look for another way in. Report what you prepared and where it is.

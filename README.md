@@ -75,7 +75,7 @@ Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs 
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 
-**`improve`** runs when Claude meets a bug in a package, something missing that any app would need, or a wrong instruction in a skill. It fixes the cause in this repository with a test and pushes it. With write access it also merges the release, so the fix is on npm minutes later. Without it, Claude opens a pull request.
+**`improve`** runs when Claude meets a bug in a package, something missing that any app would need, or a wrong instruction in a skill. It fixes the cause in this repository with a test and opens a pull request. With write access it merges the pull request once CI passes, and then the release, so the fix is on npm minutes later.
 
 To use the skills without the plugin, copy the folders in [`plugin/skills`](plugin/skills) into your project's `.claude/skills/`.
 

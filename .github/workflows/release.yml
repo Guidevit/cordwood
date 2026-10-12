@@ -12,6 +12,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      # Starts CI on the version branch.
+      actions: write
       # npm trusts this workflow by its OIDC identity: no token is stored anywhere.
       id-token: write
     steps:
@@ -35,8 +37,14 @@ jobs:
       # and publishes to npm once that pull request is merged.
       # Skipped in a fork: npm trusts this repository only.
       - uses: changesets/action@v1
+        id: changesets
         if: github.repository == 'Guidevit/cordwood'
         with:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check the version pull request
+        if: steps.changesets.outputs.pullRequestNumber != ''
+        run: gh workflow run ci.yml --ref changeset-release/main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
