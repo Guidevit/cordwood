@@ -119,7 +119,7 @@ const another = (stored: Stored | undefined, next: SubscriptionMirror) =>
  * Stripe's dashboard, so a typo copied to the customer passes every other check, and the mirror would
  * create a phantom tenant while the real one, paying, is never marked as paying.
  */
-async function tenantExists(tenant: DocumentReference): Promise<boolean> {
+export async function tenantExists(tenant: DocumentReference): Promise<boolean> {
   if ((await tenant.get()).exists) return true;
   return (await tenant.listCollections()).length > 0;
 }
