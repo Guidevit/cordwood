@@ -1,6 +1,6 @@
 import { getApps } from "firebase-admin/app";
 import { beforeAll, describe, expect, it } from "vitest";
-import { adminApp, auth, firestore } from "./admin.js";
+import { adminApp, auth, bucket, firestore } from "./admin.js";
 import { isDocumentId, tenantRef } from "./tenant.js";
 
 // A project id is all a reference needs: nothing here opens a connection.
@@ -19,6 +19,11 @@ describe("the admin app", () => {
   it("is the app Firestore and Auth are read from", () => {
     expect(firestore()).toBe(firestore());
     expect(auth().app).toBe(adminApp());
+    expect(getApps()).toHaveLength(1);
+  });
+
+  it("is the app a named bucket is read from", () => {
+    expect(bucket("demo-cordwood.appspot.com").name).toBe("demo-cordwood.appspot.com");
     expect(getApps()).toHaveLength(1);
   });
 });

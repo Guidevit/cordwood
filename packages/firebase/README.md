@@ -1,6 +1,6 @@
 # @cordwood/firebase
 
-The server's way into Firebase through firebase-admin: one app, the document each tenant's data lives under, and a command that collects the Firestore indexes your packages need.
+The server's way into Firebase through firebase-admin: one app, the document each tenant's data lives under, a bucket for its files, and a command that collects the Firestore indexes your packages need.
 
 ```bash
 pnpm add @cordwood/firebase firebase-admin
@@ -18,6 +18,31 @@ const users = auth();
 ```
 
 `adminApp()` returns the app already initialised in the process, or initialises one from the environment. Credentials are Application Default Credentials. With `FIRESTORE_EMULATOR_HOST` or `FIREBASE_AUTH_EMULATOR_HOST` set, the same calls reach the emulators.
+
+## Files
+
+```ts
+import { bucket } from "@cordwood/firebase";
+
+const files = bucket(process.env.FIREBASE_STORAGE_BUCKET);
+await files.file(`tenants/${tenantId}/photos/${id}.jpg`).save(bytes, { contentType: "image/jpeg", resumable: false });
+const [bytes] = await files.file(path).download();
+```
+
+`bucket(name)` is a Cloud Storage bucket through firebase-admin. Name it from the deployment's configuration. With `FIREBASE_STORAGE_EMULATOR_HOST` set, the same calls reach the emulator.
+
+Keep a tenant's files under `tenants/{tenantId}/`, as its documents are. The browser never opens the bucket: deploy Storage rules that deny everything, and let each file leave through a route that checks who is asking.
+
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```
 
 ## The tenant
 
