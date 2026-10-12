@@ -7,6 +7,8 @@ description: Use when an app needs sign-in and sessions, roles or team members, 
 
 Nine npm packages and six shadcn components cover the parts every SaaS rebuilds: auth, billing, e-mail, analytics, surveys, release notes, experiments and tours. Install them. Do not write a session cookie, a Stripe webhook or an NPS rule by hand in a project that can use these.
 
+Starting from an empty folder? Use the `new-app` skill, which builds a running base from all of these and then comes back here.
+
 ## Check the fit first
 
 The packages assume all four of these. Say so and stop if the project breaks one.
@@ -61,6 +63,10 @@ Tell the user when the request lands on one of these. None of them is a setting 
 - Creating Stripe products and prices. `billing` finds a price by its lookup key.
 - Every sentence a user reads. E-mail bodies, survey questions and component labels are written in the app, in its language.
 - Where a survey prompt or a tour appears on screen.
+
+## When cordwood itself is the problem
+
+A package bug, a missing capability any app would need, a README that sent you to a wrong call, or a step this skill got wrong: use the `improve` skill. It fixes the cause in the cordwood repository and pushes it. Do not leave a silent workaround in the app.
 
 ## Common mistakes
 

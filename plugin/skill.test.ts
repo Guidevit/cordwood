@@ -66,6 +66,56 @@ describe("the cordwood skill", () => {
       expect(() => read(`plugin/skills/cordwood/${target}`)).not.toThrow();
   });
 
+  it.each(["cordwood", "new-app", "improve"])("gives %s the frontmatter and the files it points at", (name) => {
+    const text = read(`plugin/skills/${name}/SKILL.md`);
+    const [, frontmatter] = /^---\n([\s\S]*?)\n---\n/.exec(text) ?? [];
+    expect(frontmatter).toMatch(new RegExp(`^name: ${name}$`, "m"));
+    expect(/^description: (.+)$/m.exec(frontmatter!)![1]!.length).toBeLessThanOrEqual(1024);
+    for (const [, target] of text.matchAll(/\]\((references\/[^)#]+)/g))
+      expect(() => read(`plugin/skills/${name}/${target}`)).not.toThrow();
+  });
+
+  it("builds the new app from every package and component, by names they still have", () => {
+    const skillText = read("plugin/skills/new-app/SKILL.md");
+    const base = read("plugin/skills/new-app/references/base-app.md");
+    for (const name of packages) expect(skillText).toContain(`@cordwood/${name}`);
+    for (const item of items) expect(skillText).toContain(`@cordwood/${item.name}`);
+    const calls: [string, string[]][] = [
+      ["auth", ["exchange", "read", "end", "admit", "changeRole", "remove", "list", "cookieName", "cookieOptions", "require", "invitedAt"]],
+      ["changelog", ["forget", "send", "subscription"]],
+      ["tour", ["forget", "seen"]],
+      ["billing", ["subscription"]],
+      ["firebase", ["isDocumentId"]],
+      ["experiments", ["defineExperiments"]],
+    ];
+    for (const [name, identifiers] of calls)
+      for (const identifier of identifiers) {
+        expect(base, `the base no longer mentions ${identifier}`).toContain(identifier);
+        expect(sourceOf(name), `${name} no longer has ${identifier}`).toContain(identifier);
+      }
+  });
+
+  it("sends both building skills to the improve skill, which names the commands this repository has", () => {
+    for (const name of ["cordwood", "new-app"])
+      expect(read(`plugin/skills/${name}/SKILL.md`)).toContain("`improve` skill");
+    const improve = read("plugin/skills/improve/SKILL.md");
+    const scripts = (JSON.parse(read("package.json")) as { scripts: Record<string, string> }).scripts;
+    for (const script of ["build", "typecheck", "test"]) {
+      expect(improve).toContain(`pnpm ${script}`);
+      expect(scripts).toHaveProperty(script);
+    }
+    expect(improve).toContain("https://github.com/Guidevit/cordwood");
+    expect(() => read(".changeset/config.json")).not.toThrow();
+  });
+
+  it("carries one version in the plugin and in the marketplace", () => {
+    const plugin = JSON.parse(read("plugin/.claude-plugin/plugin.json")) as { version: string };
+    const market = JSON.parse(read(".claude-plugin/marketplace.json")) as {
+      plugins: { version: string }[];
+    };
+    expect(market.plugins[0]!.version).toBe(plugin.version);
+  });
+
   it("gives the registry address the registry is served from", () => {
     expect(components).toContain(
       "https://raw.githubusercontent.com/Guidevit/cordwood/main/registry/r/{name}.json",

@@ -32,13 +32,25 @@ They use your app's own `Button`, `Dialog` and colours, and every word they show
 
 ## Claude Code skill
 
-The repository is also a Claude Code plugin. It carries one skill that tells Claude which package and component fit a request, the order to wire them in, and the rules they share. Install it in the project where you build:
+The repository is also a Claude Code plugin with three skills. Install it once:
 
 ```
 /plugin install cordwood --marketplace Guidevit/cordwood
 ```
 
-The skill loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code. To use the skill without the plugin, copy [`plugin/skills/cordwood`](plugin/skills/cordwood) into your project's `.claude/skills/`.
+**`new-app`** starts a product from an empty folder. Open Claude Code in that folder and describe the idea:
+
+```
+/cordwood:new-app a booking system for small clinics
+```
+
+Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. Then it turns to your idea and asks you to confirm the data model for the first feature.
+
+**`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
+
+**`improve`** runs when Claude meets a bug in a package, something missing that any app would need, or a wrong instruction in a skill. It fixes the cause in this repository with a test and pushes it. With write access it also merges the release, so the fix is on npm minutes later. Without it, Claude opens a pull request.
+
+To use the skills without the plugin, copy the folders in [`plugin/skills`](plugin/skills) into your project's `.claude/skills/`.
 
 ## What every package assumes
 
@@ -57,8 +69,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 515 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 331 that need no emulator, in about a second
+pnpm test        # 521 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 337 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```
