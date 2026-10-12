@@ -30,6 +30,16 @@ npx shadcn add @cordwood/tour-card
 
 They use your app's own `Button`, `Dialog` and colours, and every word they show comes in through a `labels` prop. [Set the registry up](registry/README.md#install) once per app.
 
+## Claude Code skill
+
+The repository is also a Claude Code plugin. It carries one skill that tells Claude which package and component fit a request, the order to wire them in, and the rules they share. Install it in the project where you build:
+
+```
+/plugin install cordwood --marketplace Guidevit/cordwood
+```
+
+The skill loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code. To use the skill without the plugin, copy [`plugin/skills/cordwood`](plugin/skills/cordwood) into your project's `.claude/skills/`.
+
 ## What every package assumes
 
 A package knows nothing about the app that installs it. It has no product name, no business rule and no text a user reads. Two conventions hold across all of them.
@@ -47,8 +57,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 488 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 304 that need no emulator, in about a second
+pnpm test        # 515 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 331 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```

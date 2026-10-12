@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["packages/*/src/**/*.test.ts", "registry/cordwood/**/*.test.tsx"],
+    include: ["packages/*/src/**/*.test.ts", "registry/cordwood/**/*.test.tsx", "plugin/**/*.test.ts"],
     // The emulator suites create accounts and wait on Auth: slower than a unit test, never this slow.
     testTimeout: 30_000,
   },

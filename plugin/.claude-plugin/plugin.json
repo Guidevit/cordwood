@@ -1,0 +1,12 @@
+{
+  "name": "cordwood",
+  "description": "Teaches Claude Code to wire the @cordwood packages and components into a Next.js and Firebase app",
+  "version": "0.1.0",
+  "author": {
+    "name": "Guidevit"
+  },
+  "homepage": "https://github.com/Guidevit/cordwood",
+  "repository": "https://github.com/Guidevit/cordwood",
+  "license": "MIT",
+  "keywords": ["cordwood", "nextjs", "firebase", "stripe", "shadcn"]
+}
