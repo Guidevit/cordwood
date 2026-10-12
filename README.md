@@ -59,7 +59,7 @@ Claude builds the base, runs it on the Firebase emulators, walks sign-up and inv
 
 ## Claude Code skill
 
-The repository is also a Claude Code plugin with three skills. Install it once:
+The repository is also a Claude Code plugin with four skills. Install it once:
 
 ```
 /plugin install cordwood --marketplace Guidevit/cordwood
@@ -76,6 +76,8 @@ Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs 
 The new project also gets a small rule harness in `.claude/`: hooks that hold functions to 100 lines and a complexity of 15, ask for a test beside every server module, refuse a commit that carries a secret, and make Claude ask before a command that deletes work or reaches a real Firebase project. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
+
+**`go-live`** takes an app from the emulators to the internet, on a request such as "put it in production" or "what is missing to launch". It creates the real Firebase project, deploys the rules and the app, and names every secret, asking before each command that changes a cloud account. The parts that are yours, such as turning on billing, verifying the Stripe account and adding DNS records, it opens and points at. It ends with a walk on the live address.
 
 **`improve`** runs when Claude meets a bug in a package, something missing that any app would need, or a wrong instruction in a skill. It fixes the cause in this repository with a test and opens a pull request, from a branch here with write access and from a fork without it. It never pushes to `main` and never merges: you read the change, and merging the release is what puts it on npm.
 

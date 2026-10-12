@@ -73,7 +73,7 @@ Create the files in [references/base-app.md](references/base-app.md#local-fireba
 
 Run `pnpm exec cordwood-firebase indexes` to write `firestore.indexes.json`.
 
-Create no cloud project, deploy nothing, and put no real key in any file. Real Firebase, Stripe and SendGrid come later, when the user asks to go live.
+Create no cloud project, deploy nothing, and put no real key in any file. Real Firebase, Stripe and SendGrid come later, when the user asks to go live: that is the `go-live` skill.
 
 ## 5. Build the base
 
@@ -125,7 +125,7 @@ gh repo create <app> --private --source . --remote origin --push
 
 Tell the user that the rule hooks start working in their next Claude Code session, and what they enforce in one line.
 
-Tell the user, briefly: the address to open, the repository's address, how to sign up, what works, what waits for a key (billing needs Stripe, real e-mail needs SendGrid), and which walk steps were not checked. Write the same into the project's `README.md`, with the `pnpm dev` command first.
+Tell the user, briefly: the address to open, the repository's address, how to sign up, what works, what waits for a key (billing needs Stripe, real e-mail needs SendGrid), which walk steps were not checked, and that putting it on the internet is a separate job you can do when asked. Write the same into the project's `README.md`, with the `pnpm dev` command first.
 
 ## 8. Now the business rules
 

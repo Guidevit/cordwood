@@ -68,7 +68,7 @@ describe("the cordwood skill", () => {
       expect(() => read(`plugin/skills/cordwood/${target}`)).not.toThrow();
   });
 
-  it.each(["cordwood", "new-app", "improve"])("gives %s the frontmatter and the files it points at", (name) => {
+  it.each(["cordwood", "new-app", "improve", "go-live"])("gives %s the frontmatter and the files it points at", (name) => {
     const text = read(`plugin/skills/${name}/SKILL.md`);
     const [, frontmatter] = /^---\n([\s\S]*?)\n---\n/.exec(text) ?? [];
     expect(frontmatter).toMatch(new RegExp(`^name: ${name}$`, "m"));
@@ -108,6 +108,25 @@ describe("the cordwood skill", () => {
     }
     expect(improve).toContain("https://github.com/Guidevit/cordwood");
     expect(() => read(".changeset/config.json")).not.toThrow();
+  });
+
+  it("takes an app live in an order that works, with the routes and variables the base has", () => {
+    const text = read("plugin/skills/go-live/SKILL.md");
+    const base = read("plugin/skills/new-app/references/base-app.md");
+    // The real project never becomes the default one, so `pnpm dev` keeps reaching the emulators.
+    expect(text).toContain("`.firebaserc` keeps `demo-<app>` as `default`");
+    for (const route of ["/api/billing/webhook", "/api/cron/changelog"]) {
+      expect(text).toContain(route);
+      expect(base).toContain(route);
+    }
+    for (const [, variable] of text.matchAll(/`([A-Z]+(?:_[A-Z]+)+)`/g))
+      if (!variable!.startsWith("NEXT_PUBLIC_") && variable !== "NODE_ENV" && variable !== "FIREBASE_STORAGE_BUCKET")
+        expect(base, `the base does not read ${variable}`).toContain(variable);
+    const order = ["## 3. The Firebase project", "## 4. The host", "## 5. Configuration and secrets", "## 7. Stripe", "## 10. Walk the live address"];
+    const at = order.map((heading) => text.indexOf(heading));
+    expect(at.every((index, i) => index > (at[i - 1] ?? -1))).toBe(true);
+    for (const name of ["cordwood", "new-app"])
+      expect(read(`plugin/skills/${name}/SKILL.md`)).toContain("`go-live` skill");
   });
 
   it("carries one version in the plugin and in the marketplace", () => {
