@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/billing",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stripe subscriptions for a tenant: Checkout, the customer portal, a verified webhook and the subscription mirrored in Firestore.",
   "license": "MIT",
   "repository": {

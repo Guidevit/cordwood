@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/email",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Transactional e-mail through SendGrid's v3 Mail Send, and its signed event webhook, with no runtime dependency.",
   "license": "MIT",
   "repository": {

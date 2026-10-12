@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/auth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Sessions, roles and tenant members on Firebase Auth: a verified session cookie, the 401 or 403 a route answers, invites that undo themselves.",
   "license": "MIT",
   "repository": {

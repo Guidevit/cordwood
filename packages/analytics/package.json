@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/analytics",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A product-event log in Firestore that holds ids only, counts a repeat once, and never fails the act it records. With DAU, WAU, MAU and stickiness computed from it.",
   "license": "MIT",
   "repository": {

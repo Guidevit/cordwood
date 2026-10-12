@@ -1,6 +1,6 @@
 {
   "name": "@cordwood/changelog",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Release notes inside the app with an unread marker, and by e-mail for whoever asked: once per person per version, with a one-click way out.",
   "license": "MIT",
   "repository": {
