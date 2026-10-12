@@ -130,6 +130,13 @@ describe("the cordwood skill", () => {
       expect(read("plugin/skills/new-app/SKILL.md")).toContain(step);
   });
 
+  it("creates the new app's repository private, and only when the folder has none", () => {
+    const text = read("plugin/skills/new-app/SKILL.md");
+    expect(text).toContain("git remote -v");
+    expect(text).toMatch(/gh repo create <app> --private /);
+    expect(text).not.toContain("--public");
+  });
+
   it("gives the registry address the registry is served from", () => {
     expect(components).toContain(
       "https://raw.githubusercontent.com/Guidevit/cordwood/main/registry/r/{name}.json",

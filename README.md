@@ -55,7 +55,7 @@ confirm the stack or the pages. Name the app after this folder. Leave the app
 running, tell me the address, and then ask me what I want to build.
 ```
 
-Claude builds the base, runs it on the Firebase emulators, walks sign-up and invites in the browser, and then asks what you want to build. The screens come in the language you write to Claude in, so add a line to the prompt in your own language if that is not English. You need Node 22, pnpm and Java 21 on the machine. No cloud account or key is needed to start.
+Claude builds the base, runs it on the Firebase emulators, walks sign-up and invites in the browser, pushes the code to a new private GitHub repository, and then asks what you want to build. The screens come in the language you write to Claude in, so add a line to the prompt in your own language if that is not English. You need Node 22, pnpm and Java 21 on the machine. No cloud account or key is needed to start.
 
 ## Claude Code skill
 
@@ -71,7 +71,7 @@ The repository is also a Claude Code plugin with three skills. Install it once:
 /cordwood:new-app
 ```
 
-Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
+Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. It makes the first commit and, when the folder has no GitHub repository, creates a private one and pushes to it. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 
@@ -96,8 +96,8 @@ You need Node 22 or later, pnpm 10 and Java 21 or later. The Firebase emulators 
 ```bash
 pnpm install
 pnpm build
-pnpm test        # 522 tests, inside the Auth and Firestore emulators
-pnpm test:unit   # the 338 that need no emulator, in about a second
+pnpm test        # 523 tests, inside the Auth and Firestore emulators
+pnpm test:unit   # the 339 that need no emulator, in about a second
 pnpm test:stripe # billing against a real Stripe sandbox, see below
 pnpm typecheck
 ```
