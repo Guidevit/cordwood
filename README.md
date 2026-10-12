@@ -32,10 +32,10 @@ They use your app's own `Button`, `Dialog` and colours, and every word they show
 
 ## Start a new app with one prompt
 
-Open Claude Code in an empty folder, paste this, and replace the last line with your idea. Write the idea in any language: the app's screens follow it.
+Open Claude Code in an empty folder and paste this. There is nothing to fill in.
 
 ```text
-Set up a new app on cordwood in this folder, then build my idea on top of it.
+Set up a new app on cordwood in this folder.
 
 1. Get the cordwood skills. Clone https://github.com/Guidevit/cordwood into
    ~/.cordwood/repo, or run `git pull --ff-only` there if it already exists.
@@ -50,13 +50,12 @@ Set up a new app on cordwood in this folder, then build my idea on top of it.
 4. When a package or a skill turns out to be wrong or missing something,
    follow ~/.cordwood/repo/plugin/skills/improve/SKILL.md.
 
-Do not ask me to confirm the stack or the pages. Stop only where the skill
-says to stop. Leave the app running and tell me the address.
-
-My idea: <describe the product, who uses it and the first thing they do in it>
+Do not ask me what the product is before the base runs, and do not ask me to
+confirm the stack or the pages. Name the app after this folder. Leave the app
+running, tell me the address, and then ask me what I want to build.
 ```
 
-Claude builds the base, runs it on the Firebase emulators, walks sign-up and invites in the browser, and then asks you to confirm the data model of your first feature. You need Node 22, pnpm and Java 21 on the machine. No cloud account or key is needed to start.
+Claude builds the base, runs it on the Firebase emulators, walks sign-up and invites in the browser, and then asks what you want to build. The screens come in the language you write to Claude in, so add a line to the prompt in your own language if that is not English. You need Node 22, pnpm and Java 21 on the machine. No cloud account or key is needed to start.
 
 ## Claude Code skill
 
@@ -66,13 +65,13 @@ The repository is also a Claude Code plugin with three skills. Install it once:
 /plugin install cordwood --marketplace Guidevit/cordwood
 ```
 
-**`new-app`** starts a product from an empty folder. Open Claude Code in that folder and describe the idea:
+**`new-app`** starts a product from an empty folder. With the plugin installed, run it there, with or without an idea after it:
 
 ```
-/cordwood:new-app a booking system for small clinics
+/cordwood:new-app
 ```
 
-Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. Then it turns to your idea and asks you to confirm the data model for the first feature.
+Claude scaffolds a Next.js app, wires the 9 packages and 6 components, and runs it on the Firebase emulators, with no cloud account or key. It walks sign-up, invites and sign-out in the browser before it says the base works. Then it asks for your idea, if you have not given it, and has you confirm the data model for the first feature.
 
 **`cordwood`** is for an app that already exists. It loads on a request such as "add Stripe subscriptions" or "invite members by e-mail", and sends Claude to install the package and read its README before writing code.
 

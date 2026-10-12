@@ -1,12 +1,12 @@
 ---
 name: new-app
-description: Use when the user wants to start a new app, SaaS or product from an empty or nearly empty folder and has an idea but no code yet, in English or Portuguese ("create my app", "start a new project", "quero criar um app", "monta a base", "começar um SaaS"). Builds a running Next.js and Firebase base with sign-up, sign-in, team members, billing, release notes, surveys, a tour and analytics from the @cordwood packages, verifies it in the browser, and only then starts on the user's business rules.
-argument-hint: [the app idea, in a sentence or a paragraph]
+description: Use when the user wants to start a new app, SaaS or product from an empty or nearly empty folder, with or without an idea described yet, in English or Portuguese ("set up a new app", "create my app", "start a new project", "quero criar um app", "monta a base", "começar um SaaS"). Builds a running Next.js and Firebase base with sign-up, sign-in, team members, billing, release notes, surveys, a tour and analytics from the @cordwood packages, verifies it in the browser, and only then turns to the user's business rules.
+argument-hint: [optional: the app idea]
 ---
 
 # New app on cordwood
 
-The user has an idea and an empty folder. Your job has two halves, in this order: a base app that runs, then their business rules on top of it. Do not write a business rule before the base passes the walk in step 6.
+The user has an empty folder and wants a product in it. They may have described the idea or not. Your job has two halves, in this order: a base app that runs, then their business rules on top of it. Do not write a business rule before the base passes the walk in step 6.
 
 The base is the part every SaaS shares, built from the `@cordwood` packages and components. It runs on the Firebase emulators, so it needs no cloud account, no Stripe key and no SendGrid key to start.
 
@@ -14,11 +14,13 @@ Load the `cordwood` skill too. Its rules and its `references/wiring.md` apply to
 
 ## 1. Read the request, ask almost nothing
 
-Take from the user's message what the app is, what they call it, and the language its users read. If the message has no name, use the folder's name. If it has no language, use the language the user writes to you in.
+The base needs two things from the user, and both have a default. The app's name is the folder's name unless the message gives one. The language of the screens is the language the user writes to you in unless the message names another.
+
+The message may carry no idea at all. That is fine: the base is the same for every product, so build it without asking what the product is.
 
 Ask one question only when the folder is not empty and holds something that is not yours to overwrite. Everything else has a default below. The user said they want one command, so do not stop to confirm the stack, the folder layout or the page list.
 
-Keep the idea itself for step 8. Do not let it shape the base.
+If the message does describe an idea, keep it for step 8. Do not let it shape the base.
 
 ## 2. Check the machine
 
@@ -94,7 +96,11 @@ Tell the user, briefly: the address to open, how to sign up, what works, what wa
 
 ## 8. Now the business rules
 
-Go back to the idea from step 1. This is the part the user came for.
+This is the part the user came for.
+
+If the user has not described the idea yet, ask for it now, in one message: what the product does, who uses it, and the first thing a person does in it. Then wait. With the base running they can open it while they answer.
+
+Once you have the idea:
 
 1. Say back, in three or four sentences, what you understood the product to do and for whom. Name the first thing a user would do in it.
 2. Propose the data it needs as collections under `tenants/{tenantId}`, the permissions it adds to `defineRoles`, and the first screen. Keep it to what the first slice needs.
