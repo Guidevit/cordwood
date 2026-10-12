@@ -120,11 +120,16 @@ describe("the cordwood skill", () => {
       expect(base).toContain(route);
     }
     for (const [, variable] of text.matchAll(/`([A-Z]+(?:_[A-Z]+)+)`/g))
-      if (!variable!.startsWith("NEXT_PUBLIC_") && variable !== "NODE_ENV" && variable !== "FIREBASE_STORAGE_BUCKET")
+      // Not variables of the app: Node's own, the bucket's name (the app picks it), and an error Firebase answers.
+      if (!variable!.startsWith("NEXT_PUBLIC_") && !["NODE_ENV", "FIREBASE_STORAGE_BUCKET", "CONFIGURATION_NOT_FOUND"].includes(variable!))
         expect(base, `the base does not read ${variable}`).toContain(variable);
     // Going live costs nothing by default: no idle instance, and a bucket in a no-cost region.
     expect(text).toContain("minInstances: 0");
     expect(text).toContain("**Spend nothing by default.**");
+    // A user's key reaches the secret store from their clipboard, and a click is read back before it is built on.
+    expect(text).toContain("pbpaste | gcloud secrets versions add");
+    expect(text).toContain("**Read back every click.**");
+    expect(text).toContain("## When someone else holds the accounts");
     const order = ["## 3. The Firebase project", "## 4. The host", "## 5. Configuration and secrets", "## 7. Stripe", "## 10. Walk the live address"];
     const at = order.map((heading) => text.indexOf(heading));
     expect(at.every((index, i) => index > (at[i - 1] ?? -1))).toBe(true);

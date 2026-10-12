@@ -16,9 +16,10 @@ Load the `cordwood` skill too. Read the app's `README.md` and `.env.example` fir
 - **A click that belongs to the user stays theirs.** Accepting terms, turning on billing, verifying a business, buying a domain. With a browser tool, open the page and say which button. Without one, give the address and the path.
 - **Spend nothing by default.** Blaze is pay as you go with a free allowance, and a new app fits inside it when each choice is made for that. Take the no-cost option every time, even when it is slower or farther from the users, and say which things cannot be free. Step 5 has the settings.
 - **Deploy nothing the checks refuse.** `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm test` when it exists, and `pnpm build` pass before every deploy.
+- **Read back every click.** When the user says a step is done, check it with a command before building on it (step 3 has them). "Done" often means the first of two clicks.
 - **Report a step you could not check as not checked.**
 
-## 1. Say what going live needs, and get the decisions
+## 1. Say what going live needs, and what you will choose
 
 Tell the user the whole list once, before doing anything, so nothing arrives as a surprise.
 
@@ -32,14 +33,17 @@ Tell the user the whole list once, before doing anything, so nothing arrives as 
 | A SendGrid account with the domain authenticated | The user | The one cost that cannot be avoided: a 60-day trial, then a paid plan |
 | Terms of use and a privacy notice | The user, with a lawyer | |
 
-Then ask, in one message, only for what has no safe default:
+Then say what you will choose, in the same message, and start. Do not stop for an answer: the user corrects a default if they want another.
 
-1. **The domain**, or whether to start on the host's own address.
-2. **The project id**, with a proposal (`<app>-prod`). It is public and permanent.
-3. **Where the data lives.** Propose the Firestore location nearest the users: its free allowance holds in any location. It is permanent.
-4. **Stripe in test mode or live.** Going live with test keys first is a sound way to walk the whole flow.
+| Choice | Default |
+|---|---|
+| The project id | `<app>-prod`. Public and permanent |
+| Where the documents live | The Firestore location nearest the users. Its free allowance holds in any location. Permanent |
+| Where the files and the server live | The no-cost region nearest the users, even when it is far (steps 3 and 4) |
+| The address | The one App Hosting gives. A domain is added when the user has one |
+| Stripe | Test keys first, to walk the whole flow, then live |
 
-Everything else below has a default.
+Ask only for what nobody but the user knows: a domain's name, which Stripe account, which address sends the e-mail.
 
 ## 2. The repository
 
@@ -63,7 +67,14 @@ Check each command's `--help` before running it: the CLI changes.
 - **`.firebaserc` keeps `demo-<app>` as `default`.** `pnpm dev` must go on reaching the emulators. Every command against the real project names it with `--project <project-id>`.
 - **Blaze comes right after the project exists.** The user links a billing account in the console (the project's "Upgrade" control). Say so, open the page, and ask them to set a budget alert while they are there. Deploying the indexes fails without it, since the packages' indexes carry a TTL policy, and so do Storage and App Hosting.
 - **The web config.** `apiKey`, `authDomain` and `projectId` from `apps:sdkconfig` are the three `NEXT_PUBLIC_FIREBASE_*` values. They are safe to publish. `NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR` stays empty in production.
-- **Sign-in by e-mail and password** is off in a new project. The user turns it on in the console: Authentication, then Sign-in method, then Email/Password. There is no Firebase CLI command for it.
+- **Sign-in by e-mail and password** is off in a new project. The user turns it on in the console, in two clicks: Authentication, then Get started, and then Sign-in method, Email/Password, enable, save. The first click alone leaves it off. There is no Firebase CLI command for it. Read it back:
+
+  ```bash
+  curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: <project-id>" \
+    https://identitytoolkit.googleapis.com/admin/v2/projects/<project-id>/config
+  ```
+
+  `CONFIGURATION_NOT_FOUND` means Authentication was never started. A `signIn.email.enabled` of `true` means it is on.
 - **Firestore.** Create the database with its location, which cannot be changed after. A new project has the API off, and the create command answers 403 until it is on:
 
   ```bash
@@ -73,7 +84,9 @@ Check each command's `--help` before running it: the CLI changes.
   firebase deploy --only firestore:rules,firestore:indexes --project <project-id>
   ```
 
-- **Cloud Storage**, when the app uses `bucket`. The user creates the default bucket in the console (Storage, then Get started), since it asks for a location and for Blaze. Only `us-central1`, `us-east1` and `us-west1` have a no-cost allowance: propose the one nearest the server, not the one nearest the users. A new one is named `<project-id>.firebasestorage.app`: that is `FIREBASE_STORAGE_BUCKET`, or whichever variable the app names its bucket with. Then `firebase deploy --only storage --project <project-id>` for the rules that deny everything.
+- **Cloud Storage**, when the app uses `bucket`. The user creates the default bucket in the console (Storage, then Get started), since it asks for a location and for Blaze. Only `us-central1`, `us-east1` and `us-west1` have a no-cost allowance: propose the one nearest the server, not the one nearest the users. A new one is named `<project-id>.firebasestorage.app`: that is `FIREBASE_STORAGE_BUCKET`, or whichever variable the app names its bucket with. Read it back with `gcloud storage buckets list --project <project-id> --format="value(name,location)"`: until the bucket exists, deploying the Storage rules fails. Then `firebase deploy --only storage --project <project-id>` for the rules that deny everything.
+
+Pass `--quiet` to every `gcloud` command. Without it, one that wants to enable an API waits for an answer nobody can give, and hangs.
 - **Authorised domains.** Once the app has its address (step 6), the user adds it in Authentication, then Settings, then Authorised domains.
 
 ## 4. The host
@@ -115,13 +128,19 @@ env:
     secret: stripe-secret-key
 ```
 
-For each secret, give the user the command and let them run it and paste the value:
+A key that belongs to the user (Stripe, SendGrid) goes from their clipboard into the secret store, and never through the session. Create the empty secret yourself, then give them one line to run in a terminal of their own, after copying the key:
 
 ```bash
-firebase apphosting:secrets:set stripe-secret-key --project <project-id>
+gcloud secrets create stripe-secret-key --project <project-id> --replication-policy=user-managed --locations=<region> --quiet
+# the user, with the key on the clipboard (macOS):
+pbpaste | gcloud secrets versions add stripe-secret-key --project <project-id> --data-file=-
 ```
 
-The command asks for the value at a prompt, so it needs a terminal of the user's own, opened in the project's folder. Run from inside the Claude Code session it has no prompt to ask at, and fails with "Secret Payload cannot be empty" after creating the secret with no value. Running it again in a real terminal fills it.
+Then `firebase apphosting:secrets:grantaccess stripe-secret-key --backend <app> --project <project-id>`, name it in `apphosting.yaml`, and deploy.
+
+- Do not send the user to `firebase apphosting:secrets:set` with no `--data-file`. It asks for the value at a prompt, and the prompt is refused both inside the Claude Code session ("Secret Payload cannot be empty", after creating the secret with no value) and in many terminals ("cannot be answered in non-interactive mode").
+- The command is pasted first and the key copied after, since both use the clipboard: paste the line, do not press Enter, copy the key, come back, press Enter.
+- Read it back without reading the value: `gcloud secrets versions list <name> --project <project-id> --format="value(state)"` shows `enabled`.
 
 | Variable | Kind | Its value |
 |---|---|---|
@@ -176,7 +195,7 @@ When the address is final: set `APP_ORIGIN` to it and deploy again, add it to Fi
 
 All in the user's dashboard. Open each page and say what to do.
 
-1. **Activate the account** (business details, tax id, bank account). The country cannot be changed afterwards. Not needed for test mode.
+1. **The account.** A business that already has a Stripe organisation adds one account per product, from the account menu's "Create account". Creating it is the user's click, never yours. Then **activate it** (business details, tax id, bank account). The country cannot be changed afterwards. Not needed for test mode.
 2. **Payment methods.** For Pix: Settings, then Payment methods. In Brazil, Stripe offers Pix by invitation. If it is not listed, the user asks Stripe, and nothing built on `billing.charge` works until then. Pix takes one-off payments only.
 3. **Subscriptions**, when the app sells a plan: a product with a price whose lookup key is the value of `STRIPE_PRICE`, and the customer portal turned on.
 4. **The webhook.** In Workbench, Webhooks, create an event destination of the type "Webhook endpoint" at `<APP_ORIGIN>/api/billing/webhook`. Events: `checkout.session.completed`, `customer.subscription.*`, `invoice.*`, and `payment_intent.*` when the app charges once. Its signing secret is `STRIPE_WEBHOOK_SECRET`.
@@ -222,6 +241,20 @@ The deploy is done when a person has used it there.
 | Read Firestore from the browser's console with the web SDK | Refused by the rules |
 
 In test mode, pay with Stripe's test values. In live mode it is real money: ask first, then refund it from the dashboard.
+
+## When someone else holds the accounts
+
+The user may not be the one with the registrar, the Stripe organisation or the card. When they say an administrator will do the rest, write that person a brief, as a Markdown file where the user asks for it, and stop asking the user for those clicks.
+
+The brief stands alone, for a reader who never saw this session:
+
+- What the app is, in two sentences, and its live address, project id, backend and region.
+- The two rules: take the no-cost option, and no key travels by e-mail, chat or file.
+- What access they need before starting (Owner on the Firebase project, administrator on the Stripe organisation), which the user grants.
+- Each remaining step from this skill, with the page, the path of clicks, and the exact `pbpaste | gcloud secrets versions add ...` line for each key. Create the empty secrets first, so those lines work.
+- What to send back, and that none of it is a key: the domain and whether its DNS verified, whether Pix is offered, test or live keys, the sender addresses, what is still open and why.
+
+When the answers come back, read each one back with a command, wire the secrets, set `APP_ORIGIN`, deploy, and walk.
 
 ## 11. What the packages leave to the user
 
