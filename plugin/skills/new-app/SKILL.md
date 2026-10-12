@@ -103,6 +103,8 @@ gh repo create <app> --private --source . --remote origin --push
 - It goes under the account `gh` is signed in to. Use an organisation only when the user named one.
 - If the name is taken, try `<app>-app`, then ask.
 - Before the push, check that no secret is staged: `git ls-files` shows `.env.development` and `.env.example` and no other `.env` file.
+- After creating it, set the repository up: `gh repo edit --delete-branch-on-merge --enable-wiki=false --enable-issues --enable-projects`. A merged branch is deleted, the wiki is off, issues and projects are on. Leave a repository you did not create as it is.
+- Do not add branch rules to it. GitHub offers rulesets and branch protection on a private repository only on a paid plan, and the call fails on a free one. Mention this once in the hand-over, as something to turn on if the plan allows.
 - If `gh` is missing or not signed in, do not stop the hand-over. Say that the repository was not created and give the two commands to run after `gh auth login`.
 
 Tell the user, briefly: the address to open, the repository's address, how to sign up, what works, what waits for a key (billing needs Stripe, real e-mail needs SendGrid), and which walk steps were not checked. Write the same into the project's `README.md`, with the `pnpm dev` command first.

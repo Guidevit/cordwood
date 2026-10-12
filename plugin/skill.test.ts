@@ -135,6 +135,7 @@ describe("the cordwood skill", () => {
     expect(text).toContain("git remote -v");
     expect(text).toMatch(/gh repo create <app> --private /);
     expect(text).not.toContain("--public");
+    expect(text).toContain("gh repo edit --delete-branch-on-merge --enable-wiki=false --enable-issues --enable-projects");
   });
 
   it("gives the registry address the registry is served from", () => {
