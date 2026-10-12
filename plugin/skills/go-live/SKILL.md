@@ -60,12 +60,13 @@ firebase apps:sdkconfig WEB --project <project-id>
 Check each command's `--help` before running it: the CLI changes.
 
 - **`.firebaserc` keeps `demo-<app>` as `default`.** `pnpm dev` must go on reaching the emulators. Every command against the real project names it with `--project <project-id>`.
-- **Blaze.** The user links a billing account in the console (the project's "Upgrade" control). Say so, open the page, and ask them to set a budget alert while they are there. Nothing below works before this.
+- **Blaze comes right after the project exists.** The user links a billing account in the console (the project's "Upgrade" control). Say so, open the page, and ask them to set a budget alert while they are there. Deploying the indexes fails without it, since the packages' indexes carry a TTL policy, and so do Storage and App Hosting.
 - **The web config.** `apiKey`, `authDomain` and `projectId` from `apps:sdkconfig` are the three `NEXT_PUBLIC_FIREBASE_*` values. They are safe to publish. `NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR` stays empty in production.
 - **Sign-in by e-mail and password** is off in a new project. The user turns it on in the console: Authentication, then Sign-in method, then Email/Password. There is no Firebase CLI command for it.
-- **Firestore.** Create the database with its location, which cannot be changed after:
+- **Firestore.** Create the database with its location, which cannot be changed after. A new project has the API off, and the create command answers 403 until it is on:
 
   ```bash
+  gcloud services enable firestore.googleapis.com --project <project-id>
   firebase firestore:databases:create "(default)" --location=<location> --project <project-id>
   pnpm exec cordwood-firebase indexes
   firebase deploy --only firestore:rules,firestore:indexes --project <project-id>
@@ -89,6 +90,10 @@ firebase init apphosting --project <project-id>     # backend id, region, root d
 ```
 
 It writes `apphosting.yaml` and an `apphosting` entry in `firebase.json`. Commit both.
+
+The build runs away from this machine, from the committed `package.json`. A dependency installed from a local path (`file:`, `link:`) does not exist there: every `@cordwood` package must come from npm before the first deploy.
+
+The address it gives, `https://<backend>--<project-id>.<region>.hosted.app`, is a real one. An app can launch on it with no domain of its own, and then step 6 is skipped.
 
 **The server's identity** is `firebase-app-hosting-compute@<project-id>.iam.gserviceaccount.com`. After the first deploy, read its roles in IAM. If a request fails with a permission error from Auth, Firestore or Storage, the role it lacks is named in the error: tell the user which one, and let them grant it.
 
@@ -150,6 +155,8 @@ All in the user's dashboard. Open each page and say what to do.
 Test mode and live mode each have their own key, webhook and secret.
 
 ## 8. E-mail
+
+With no domain of the app's own, there is nothing to authenticate. SendGrid then sends from one address the user verifies (Settings, then Sender Authentication, then Single Sender Verification), and more of it lands in spam. Say so, and use that address as `EMAIL_FROM`.
 
 1. The user creates the SendGrid account and authenticates the domain: Settings, then Sender Authentication, then Domain Authentication. It asks for three CNAME records and a `_dmarc` TXT at the registrar, and can take up to two days to verify.
 2. An API key with Custom Access and only Mail Send. It is shown once: `SENDGRID_API_KEY`.
