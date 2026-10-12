@@ -165,4 +165,4 @@ Routes: `GET /api/tours` and `POST /api/tours`. The shell's layout reads `tours.
 
 ## What must not be in the base
 
-No landing page, no pricing page, no settings beyond members and billing, no dark-mode switch, no extra dependency for state or forms. The user's idea decides those, and each one built now is one they may have to remove.
+No landing page (the `landing` skill builds it later, once the product has something to say), no pricing page, no settings beyond members and billing, no dark-mode switch, no extra dependency for state or forms. The user's idea decides those, and each one built now is one they may have to remove.
