@@ -12,8 +12,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # Starts CI on the version branch.
-      actions: write
       # npm trusts this workflow by its OIDC identity: no token is stored anywhere.
       id-token: write
     steps:
@@ -34,7 +32,8 @@ jobs:
       - run: pnpm build
       - run: pnpm test
       # Opens a "Version Packages" pull request while changesets are pending,
-      # and publishes to npm once that pull request is merged.
+      # and publishes to npm once that pull request is merged. GitHub holds CI on
+      # that pull request until the owner approves the run, since a bot opened it.
       # Skipped in a fork: npm trusts this repository only.
       - uses: changesets/action@v1
         id: changesets
@@ -43,8 +42,3 @@ jobs:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Check the version pull request
-        if: steps.changesets.outputs.pullRequestNumber != ''
-        run: gh workflow run ci.yml --ref changeset-release/main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

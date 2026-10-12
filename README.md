@@ -118,7 +118,7 @@ gh pr checks --watch
 gh pr merge --squash --delete-branch
 ```
 
-A change to a package also needs a changeset (`pnpm changeset`). After the merge, the release workflow opens a "Version Packages" pull request, and merging that one publishes to npm.
+A change to a package also needs a changeset (`pnpm changeset`). After the merge, the release workflow opens a "Version Packages" pull request, and merging that one publishes to npm. GitHub holds the check on that pull request until the owner presses "Approve and run", because a bot opened it.
 
 Build before the first type-check: a package reads the types of the packages it depends on from their `dist`.
 
