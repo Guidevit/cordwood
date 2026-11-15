@@ -1,5 +1,11 @@
 # @cordwood/auth
 
+## 0.2.0
+
+### Minor Changes
+
+- af706fe: `members.admit` takes `{ idToken }`: a person who signed in with a provider that verified their address, such as Google, is admitted with no password and nothing delivered, and keeps the session they signed in with.
+
 ## 0.1.3
 
 ### Patch Changes
