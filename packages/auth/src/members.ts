@@ -3,6 +3,8 @@
 // Only the server manages members. Admitting creates the Auth account with the tenant and the role as
 // custom claims and hands the app a password-reset link to deliver, so there is no initial-password
 // screen: completing that link also marks the e-mail verified, which the session exchange requires.
+// A person who signed in with a provider that verified the address, such as Google, is admitted on
+// the ID token of that sign-in instead, with no link and no password.
 // The roster is kept at tenants/{tenantId}/members/{uid}, so listing never scans another tenant's accounts.
 import { randomBytes } from "node:crypto";
 import type { Auth, UserRecord } from "firebase-admin/auth";
@@ -56,10 +58,18 @@ export type Invite<R extends RoleMap> = {
  * With `password`: the password the person typed, for a sign-up whose own link already proved the
  * address. Nothing is delivered, and the account is marked verified. Never pass a password for an
  * address nobody proved.
+ *
+ * With `idToken`: a fresh ID token of the person, from a sign-in with a provider that verified the
+ * address, such as Google. The account it names is admitted with nothing delivered and no password
+ * set. When that provider is the account's only way in, its sessions go on, and the browser refreshes
+ * its token to carry the tenant. Otherwise a password on it is replaced by one nobody knows and every
+ * session ends, the person's too: they sign in with the provider again. Throws when the token is not
+ * valid, is of another address or account, or came from a password sign-in.
  */
 export type Entry<R extends RoleMap> =
   | { continueUrl: string; deliver: (invite: Invite<R>) => Promise<void> }
-  | { password: string };
+  | { password: string }
+  | { idToken: string };
 
 /**
  * `member`: the address is already this tenant's. `other_tenant`: another tenant holds it, and moving
@@ -171,14 +181,37 @@ export function createMembers<R extends RoleMap>(config: MembersConfig<R>): Memb
    * server did not hand out in this admission. Anyone with the public web key can register an address
    * before its owner arrives, so a password already on the account may be a stranger's: it is replaced
    * by one nobody knows unless this admission just set the owner's, and every token minted before now
-   * is revoked.
+   * is revoked. The one exception is an account whose only way in is the provider that just proved the
+   * address (`provenBy`): every session on it is the person's own, and it goes on.
    */
-  async function dropOutsideAccess(account: UserRecord, passwordJustSet: boolean) {
+  async function dropOutsideAccess(
+    account: UserRecord,
+    passwordJustSet: boolean,
+    provenBy: string | null,
+  ) {
     if (!passwordJustSet && hasPassword(account))
       await auth.updateUser(account.uid, {
         password: randomBytes(32).toString("base64url"),
       });
-    await auth.revokeRefreshTokens(account.uid);
+    const onlyThatProvider =
+      provenBy !== null && account.providerData.every((p) => p.providerId === provenBy);
+    if (!onlyThatProvider) await auth.revokeRefreshTokens(account.uid);
+  }
+
+  /**
+   * The account an ID token proves `email` for, and the provider that proved it. A password, a custom
+   * token or an anonymous sign-in proves no address here: a password sign-up has its own entry.
+   */
+  async function provenBy(idToken: string, email: string): Promise<{ uid: string; provider: string }> {
+    const token = await auth.verifyIdToken(idToken, true);
+    const provider = token.firebase.sign_in_provider;
+    if (
+      token.email_verified !== true ||
+      token.email?.toLowerCase() !== email.toLowerCase() ||
+      ["password", "custom", "anonymous", "phone"].includes(provider)
+    )
+      throw new Error("the token does not prove this address");
+    return { uid: token.uid, provider };
   }
 
   /**
@@ -216,9 +249,12 @@ export function createMembers<R extends RoleMap>(config: MembersConfig<R>): Memb
   ): Promise<Admitted<R>> {
     const tenant = tenantRef(firestore, tenantId);
     if (!roles.isRole(admission.role)) throw new Error("unknown role");
+    const proof = "idToken" in entry ? await provenBy(entry.idToken, admission.email) : null;
     const existing = await accountByEmail(auth, admission.email);
     const refusal = refusalOf(existing, tenantId);
     if (refusal) return { ok: false, reason: refusal };
+    if (proof && existing?.uid !== proof.uid)
+      throw new Error("the token does not prove this address");
     const password = "password" in entry ? entry.password : null;
     const account =
       existing ??
@@ -246,7 +282,7 @@ export function createMembers<R extends RoleMap>(config: MembersConfig<R>): Memb
       });
       done.row = row;
       done.adjusted = await adjust(account, admission.name, existing ? password : null);
-      if (existing) await dropOutsideAccess(existing, password !== null);
+      if (existing) await dropOutsideAccess(existing, password !== null, proof?.provider ?? null);
       const { [REMOVED_FROM_CLAIM]: _removed, ...rest } = account.customClaims ?? {};
       await auth.setCustomUserClaims(account.uid, {
         ...rest,

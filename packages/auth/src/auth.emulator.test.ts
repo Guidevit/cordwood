@@ -47,6 +47,49 @@ async function signIn(email: string, password = PASSWORD): Promise<string> {
   return body.idToken;
 }
 
+/**
+ * What the browser does when the person picks their Google account. The emulator takes the provider's
+ * claims, unsigned, as Google's own token.
+ */
+async function signInWithGoogle(
+  email: string,
+  sub: string = id(),
+): Promise<{ idToken: string; refreshToken: string }> {
+  const claims = JSON.stringify({ sub, email, email_verified: true });
+  const response = await fetch(
+    `http://${AUTH_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=demo`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        postBody: `id_token=${encodeURIComponent(claims)}&providerId=google.com`,
+        requestUri: "http://localhost",
+        returnSecureToken: true,
+      }),
+    },
+  );
+  const body = (await response.json()) as {
+    idToken?: string;
+    refreshToken?: string;
+    error?: { message: string };
+  };
+  if (!body.idToken || !body.refreshToken)
+    throw new Error(`Google sign-in failed: ${body.error?.message}`);
+  return { idToken: body.idToken, refreshToken: body.refreshToken };
+}
+
+/** What the browser does to pick up new claims: trades its refresh token for a new ID token. */
+async function refreshed(refreshToken: string): Promise<string> {
+  const response = await fetch(`http://${AUTH_HOST}/securetoken.googleapis.com/v1/token?key=demo`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: refreshToken }),
+  });
+  const body = (await response.json()) as { id_token?: string; error?: { message: string } };
+  if (!body.id_token) throw new Error(`refresh failed: ${body.error?.message}`);
+  return body.id_token;
+}
+
 /** A tenant with its first member, admitted the way a sign-up admits: with the password they typed. */
 async function tenantWith(role: R = "admin") {
   const tenantId = id();
@@ -358,6 +401,127 @@ describe("admitting a member", () => {
     await expect(
       members.admit("a/b/c", { email: address(), role: "admin" }, { password: PASSWORD }, "x"),
     ).rejects.toThrow("invalid tenant id");
+  });
+});
+
+describe("admitting a person a provider signed in", () => {
+  // A revocation counts whole seconds: a token from the same second as one would survive it.
+  const nextSecond = () => new Promise((resolve) => setTimeout(resolve, 1100));
+
+  it("admits the account the token names, with no password and no link, and its session goes on", async () => {
+    const email = address();
+    const google = await signInWithGoogle(email);
+    await nextSecond();
+    const tenantId = id();
+    const admitted = await members.admit(
+      tenantId,
+      { email, role: "admin", name: "Ana Lima" },
+      { idToken: google.idToken },
+      "sign-up",
+    );
+    expect(admitted).toMatchObject({
+      ok: true,
+      link: null,
+      member: { email, name: "Ana Lima", role: "admin" },
+    });
+    if (!admitted.ok) return;
+
+    const account = await auth.getUser(admitted.member.uid);
+    expect(account.customClaims).toEqual({ tenant: tenantId, role: "admin" });
+    expect(account.emailVerified).toBe(true);
+    expect(account.providerData.map((p) => p.providerId)).toEqual(["google.com"]);
+    const row = await tenantRef(db, tenantId).collection("members").doc(account.uid).get();
+    expect(row.data()).toMatchObject({ email, role: "admin", invitedBy: "sign-up" });
+
+    // The browser refreshes the token it already holds, and the new one carries the tenant.
+    const exchanged = await sessions.exchange(await refreshed(google.refreshToken));
+    expect(exchanged).toMatchObject({ ok: true, session: { tenantId, role: "admin", email } });
+  });
+
+  it("throws on a token of another address, and admits nothing", async () => {
+    const google = await signInWithGoogle(address());
+    const tenantId = id();
+    await expect(
+      members.admit(tenantId, { email: address(), role: "admin" }, { idToken: google.idToken }, "x"),
+    ).rejects.toThrow("the token does not prove this address");
+    expect((await tenantRef(db, tenantId).collection("members").get()).empty).toBe(true);
+  });
+
+  it("throws on a token from a password sign-in, which proves no address here", async () => {
+    const email = address();
+    await auth.createUser({ email, password: PASSWORD, emailVerified: true });
+    await expect(
+      members.admit(id(), { email, role: "admin" }, { idToken: await signIn(email) }, "x"),
+    ).rejects.toThrow("the token does not prove this address");
+  });
+
+  it("answers other_tenant for an address another tenant holds, and leaves it there", async () => {
+    const email = address();
+    const google = await signInWithGoogle(email);
+    const theirs = id();
+    expect(
+      (await members.admit(theirs, { email, role: "editor" }, { idToken: google.idToken }, "x")).ok,
+    ).toBe(true);
+    const again = await signInWithGoogle(email, (await auth.getUserByEmail(email)).providerData[0]!.uid);
+    expect(
+      await members.admit(id(), { email, role: "admin" }, { idToken: again.idToken }, "x"),
+    ).toEqual({ ok: false, reason: "other_tenant" });
+    expect((await auth.getUserByEmail(email)).customClaims).toEqual({
+      tenant: theirs,
+      role: "editor",
+    });
+  });
+
+  it("takes away a password already on the account, and ends every session, the person's too", async () => {
+    const email = address();
+    const sub = id();
+    const earlier = await auth.createUser({
+      email,
+      password: "a password set earlier",
+      emailVerified: true,
+    });
+    await auth.updateUser(earlier.uid, {
+      providerToLink: { providerId: "google.com", uid: sub, email },
+    });
+    const google = await signInWithGoogle(email, sub);
+    await nextSecond();
+    const tenantId = id();
+    const admitted = await members.admit(
+      tenantId,
+      { email, role: "admin" },
+      { idToken: google.idToken },
+      "sign-up",
+    );
+    expect(admitted.ok).toBe(true);
+    await expect(signIn(email, "a password set earlier")).rejects.toThrow("INVALID");
+    expect(await sessions.exchange(google.idToken)).toEqual({ ok: false, reason: "token" });
+
+    // The person signs in with Google again, and that session carries the tenant.
+    const again = await signInWithGoogle(email, sub);
+    expect(await sessions.exchange(again.idToken)).toMatchObject({
+      ok: true,
+      session: { tenantId, role: "admin" },
+    });
+  });
+
+  it("throws for an account whose address Firebase never verified, even through a provider", async () => {
+    const email = address();
+    const sub = id();
+    const squatter = await auth.createUser({
+      email,
+      password: "the squatter's password",
+      emailVerified: false,
+    });
+    await auth.updateUser(squatter.uid, {
+      providerToLink: { providerId: "google.com", uid: sub, email },
+    });
+    const google = await signInWithGoogle(email, sub);
+    const tenantId = id();
+    await expect(
+      members.admit(tenantId, { email, role: "admin" }, { idToken: google.idToken }, "x"),
+    ).rejects.toThrow("the token does not prove this address");
+    expect((await auth.getUser(squatter.uid)).customClaims ?? {}).toEqual({});
+    expect((await tenantRef(db, tenantId).collection("members").get()).empty).toBe(true);
   });
 });
 

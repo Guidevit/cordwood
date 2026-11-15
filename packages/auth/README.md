@@ -123,6 +123,10 @@ The person gets a one-time link where they set a password. Opening it also prove
 
 For a sign-up whose own link already proved the address, pass `{ password }` in place of `continueUrl` and `deliver`. That is also how a tenant gets its first member.
 
+For a person who signed in with a provider that verified the address, such as Google, pass `{ idToken }`: the ID token the browser got from that sign-in. The account it names is admitted as it is, with nothing delivered and no password set. `admit` throws when the token is not valid, is of another address or account, or came from a password sign-in. When the provider is the account's only way in, the person's session goes on: the browser refreshes its token (`getIdToken(true)`), which now carries the tenant, and posts it to the sign-in route. An account that also had another way in loses any password and every session, and the person signs in with the provider again.
+
+A sign-up with Google, then, runs in four steps: the browser signs in with the Firebase client SDK (`signInWithPopup` and `GoogleAuthProvider`) and posts its ID token; the server, finding no tenant in the token, creates one and admits the person with `{ idToken }`; the browser refreshes its token; the sign-in route exchanges it. A token that already carries a tenant goes straight to `exchange`. Google refuses its sign-in inside the in-app browsers of apps such as Instagram and Facebook, so keep e-mail and password beside it.
+
 `admit` answers `{ ok: false, reason }` for an address it will not take.
 
 | Reason | Meaning |
